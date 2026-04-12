@@ -49,11 +49,13 @@
         .dialog-title {
             display: flex;
             align-items: center;
-            padding: 12px 16px;
-            background: #1a1d1d;
-            border-bottom: 1px solid rgba(255,255,255,0.05);
-            font-size: 16px;
-            font-weight: 700;
+            padding: 16px 16px;
+            min-height: 56px;
+            background: #232626;
+            border-bottom: 1px solid rgba(255,255,255,0.08);
+            color: #c0c0c0;
+            font-size: 15px;
+            font-weight: 600;
             position: relative;
         }
 
@@ -82,6 +84,7 @@
         }
 
         #content {
+            display: none;
             overflow-y: auto;
             -ms-overflow-style: none;
             scrollbar-width: none;
@@ -177,6 +180,7 @@
             align-items: center;
             justify-content: center;
             border: 2px solid #3d4450;
+            margin-bottom: 12px;
         }
 
         .avatar {
@@ -203,7 +207,7 @@
             height: 20px;
             border-radius: 4px;
             padding: 0 8px;
-            margin-top: -8px;
+            margin-top: 4px;
             z-index: 10;
             display: flex;
             align-items: center;
@@ -1632,8 +1636,13 @@
             }, 300);
         }
 
-        function showErr() {
+        function showErr(title = 'Profile Not Found', message = 'Unable to load profile. Please check UID.') {
+            const errorTitle = document.querySelector('#error h2');
+            const errorText = document.querySelector('#error p');
+            if (errorTitle) errorTitle.textContent = title;
+            if (errorText) errorText.textContent = message;
             document.getElementById('loading').style.display = 'none';
+            document.getElementById('content').style.display = 'none';
             document.getElementById('error').style.display = 'flex';
         }
 
@@ -1712,7 +1721,7 @@
             }
 
             if (!uid) {
-                showErr();
+                showErr('Invalid UID', 'UID parameter is missing from the URL. Add ?uid=<ID> and reload the page.');
                 return;
             }
 

@@ -113,7 +113,7 @@
             width: 40px;
             height: 40px;
             border: 3px solid #2d333b;
-            border-top-color: #f0b90b;
+            border-top-color: #3fb950;
             border-radius: 50%;
             animation: spin 1s linear infinite;
         }
@@ -241,8 +241,9 @@
         }
         
         .vip-badge.diamond { 
-            background: linear-gradient(95deg, #ab0ecf, #6a0dad);
-            border-color: rgb(113, 85, 176);
+            color: rgb(171, 178, 222);
+            background-image: linear-gradient(to top, rgba(171, 178, 222, 0.1), transparent);
+            border-color: rgba(171, 178, 222, 0.6);
         }
 
         .username {
@@ -334,8 +335,11 @@
 
         .details-btn span {
             color: #3fb950;
-            font-size: 12px;
+            font-size: 0.75rem;
             font-weight: 800;
+            letter-spacing: 0.02em;
+            text-transform: uppercase;
+            line-height: 1;
         }
 
         .details-btn svg {
@@ -496,6 +500,11 @@
             justify-content: space-between;
             gap: 20px;
             flex-wrap: wrap;
+            margin: 0;
+        }
+
+        .bonus-card-image-wrapper {
+            margin: 0;
         }
 
         .bonus-card-hero {

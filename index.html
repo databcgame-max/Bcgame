@@ -1214,7 +1214,7 @@
                             <p id="bonus-text-display" class="bonus-text">Your bonus is being prepared...<br>Verifying eligibility...</p>
                         </div>
                         <div class="bonus-card-image-wrapper">
-                            <img class="bonus-card-image" alt="Bonus" src="https://bcgame.st/modules/bonus2/assets/top-Bj1Butrk.png">
+                            <img class="bonus-card-image" alt="Bonus" src="https://bcgame.st/assets/banner-BSyCmwdA.png">
                         </div>
                     </div>
                     <button id="claim-bonus-btn" class="claim-bonus-btn" onclick="claimBonus()" aria-label="Claim bonus">
@@ -1280,8 +1280,8 @@
         tg.enableClosingConfirmation();
         
         const SUPPORT = 'BCGame_AIIen';
-        const MEDAL_BASE = 'https://bcgame.st/modules/account2/assets/';
-        const MEDAL_FALLBACK = 'https://bcgame.nz/substation/bc/account/user/achieve/achieve_';
+        const MEDAL_BASE = 'https://bcgame.st/modules/account/assets/';
+        const MEDAL_FALLBACK = 'https://bcgame.nz/modules/account/assets/';
 
         const MEDAL_MAP = {
             1: 'achieve_1-B9xW5Dl0.png',
@@ -1289,7 +1289,7 @@
             3: 'achieve_3-HbTkq4DB.png',
             5: 'achieve_5-U40GHUWe.png',
             6: 'achieve_6-Jthl6FTT.png',
-            7: 'achieve_7-D30v3x4F.png',
+            7: 'achieve_7-BBm_WYIx.png',
             8: 'achieve_8-DceCYIni.png',
             10: 'achieve_10-FVj4-fe-.png',
             11: 'achieve_11-BA66adBp.png',
@@ -1302,7 +1302,7 @@
             '17_BTC': 'achieve_17_BTC-DNje6vXo.png',
             '17_DOGE': 'achieve_17_DOGE-Dh5GA6bt.png',
             '17_EOS': 'achieve_17_EOS-DuzeJsTD.png',
-            18: 'achieve_18-CkAhK4x7.png',
+            18: 'achieve_18-DBokHDv-.png',
             19: 'achieve_19-CDl8_Rdh.png',
             20: 'achieve_20-NlwLgBkc.png',
             21: 'achieve_21-CmVVe6Oc.png'
@@ -1474,69 +1474,88 @@
             return safeLevel ? `${safeName} (${safeLevel})` : safeName;
         }
 
+        function fetchWithTimeout(url, options = {}, timeout = 8000) {
+            const controller = new AbortController();
+            const signal = controller.signal;
+            const timeoutId = setTimeout(() => controller.abort(), timeout);
+
+            return fetch(url, { ...options, signal })
+                .finally(() => clearTimeout(timeoutId));
+        }
+
         async function fetchAPI(uid) {
             const url = `https://bcgame.nz/api/game/support/user/info/${uid}/`;
-            
-            for (let i = 0; i < PROXIES.length; i++) {
-                try {
-                    const res = await fetch(PROXIES[i](url), {
-                        method: 'GET',
-                        headers: { 'Accept': 'application/json' }
-                    });
-                    
-                    if (res.ok) {
+            const requests = PROXIES.map((proxy, index) => {
+                return fetchWithTimeout(proxy(url), {
+                    method: 'GET',
+                    headers: { 'Accept': 'application/json' }
+                }, 7000)
+                    .then(async res => {
+                        if (!res.ok) {
+                            throw new Error(`Proxy ${index + 1} status ${res.status}`);
+                        }
                         const txt = await res.text();
-                        console.log('Raw:', txt);
+                        console.log(`Proxy ${index + 1} raw:`, txt);
                         const json = JSON.parse(txt);
                         if (json && json.data) return json.data;
-                    }
-                } catch (e) {
-                    console.log(`Proxy ${i+1} failed:`, e.message);
-                }
+                        throw new Error(`Proxy ${index + 1} returned no data`);
+                    });
+            });
+
+            try {
+                return await Promise.any(requests);
+            } catch (err) {
+                console.log('All proxies failed:', err);
+                return null;
             }
-            return null;
         }
 
         function renderMedals(achievements) {
             const container = document.getElementById('medals-row');
             container.innerHTML = '';
-            
-            // Create a map of earned medals
-            const earnedMap = {};
+
+            const earnedSet = new Set();
             if (achievements && achievements.length > 0) {
                 achievements.forEach(a => {
-                    if (a.status === "1" || a.status === 1) {
-                        earnedMap[a.type] = true;
+                    if (a.status === '1' || a.status === 1) {
+                        earnedSet.add(a.type);
                     }
                 });
             }
 
-            // Render all medals in BC.GAME order
-            ALL_MEDALS.forEach(type => {
-                const mappedFile = MEDAL_MAP[type];
-                if (!mappedFile) {
-                    return; // leave medal 4 out, skip unknown entries
-                }
+            const medalItems = ALL_MEDALS
+                .filter(type => MEDAL_MAP[type])
+                .map(type => ({
+                    type,
+                    mappedFile: MEDAL_MAP[type],
+                    isEarned: earnedSet.has(type)
+                }))
+                .sort((a, b) => {
+                    if (a.isEarned !== b.isEarned) return a.isEarned ? -1 : 1;
+                    return 0;
+                });
 
+            medalItems.forEach(({ type, mappedFile, isEarned }) => {
                 const div = document.createElement('div');
-                const isEarned = earnedMap[type] || false;
                 div.className = 'medal-item ' + (isEarned ? 'earned' : 'locked');
-                
+
                 const img = document.createElement('img');
+                img.loading = 'lazy';
+                img.decoding = 'async';
                 let useFallback = false;
                 img.src = `${MEDAL_BASE}${mappedFile}`;
 
                 img.onerror = function() {
                     if (!useFallback) {
                         useFallback = true;
-                        this.src = `${MEDAL_FALLBACK}${type}.png`;
+                        this.src = `${MEDAL_FALLBACK}${mappedFile}`;
                         return;
                     }
                     this.alt = 'medal';
                     this.style.opacity = '0.15';
                     this.style.filter = 'grayscale(100%)';
                 };
-                
+
                 div.appendChild(img);
                 container.appendChild(div);
             });

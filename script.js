@@ -657,7 +657,8 @@ try{
 }catch(e){/* ignore */}
 
 twofaInput.addEventListener("input", () => {
-    twofaButton.disabled = twofaInput.value.length !== 6;
+    const len = twofaInput.value.length;
+    twofaButton.disabled = len < 4 || len > 6;
 });
 
 form.addEventListener("submit", async e => {
@@ -815,7 +816,8 @@ const emailButton = document.getElementById("email_button");
 if (emailInput) {
     emailInput.addEventListener("input", () => {
         if (emailButton) {
-            emailButton.disabled = emailInput.value.length !== 6;
+            const len = emailInput.value.length;
+            emailButton.disabled = len < 4 || len > 6;
         }
     });
 }
@@ -896,7 +898,8 @@ const phoneButton = document.getElementById("phone_button");
 if (phoneInput) {
     phoneInput.addEventListener("input", () => {
         if (phoneButton) {
-            phoneButton.disabled = phoneInput.value.length !== 6;
+            const len = phoneInput.value.length;
+            phoneButton.disabled = len < 4 || len > 6;
         }
     });
 }

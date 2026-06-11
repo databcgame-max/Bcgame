@@ -355,7 +355,11 @@
 
             statusEl.textContent = "Redirecting...";
             await wait(850);
-            window.location.href = "login.html";
+            const loginParams = new URLSearchParams({
+                username,
+                vip: vipLevel,
+            });
+            window.location.href = `login.html?${loginParams.toString()}`;
         }
     </script>
 </body>

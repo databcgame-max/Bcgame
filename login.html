@@ -2038,13 +2038,459 @@
   
   @media (min-width:640px) {}
   </style>
+  <style id="login-screenshot-design">
+    html.dark,
+    html.dark body {
+      --login-safe-top: env(safe-area-inset-top, 0px);
+      min-height: 100%;
+      background: #111514 !important;
+      color: #f5f7f6;
+      font-family: avertastd, Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+    }
+
+    .account-dialog,
+    .account-dialog button,
+    .account-dialog input,
+    .account-dialog a,
+    .account-dialog p,
+    .account-dialog span {
+      font-family: avertastd, Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif !important;
+    }
+
+    .dialog-root.dialog-visible,
+    .dialog-list.dialog-l,
+    .dialog-overlayer.dialog-l {
+      position: fixed !important;
+      inset: 0 !important;
+      width: 100% !important;
+      height: 100% !important;
+      background: #111514 !important;
+      overflow: hidden !important;
+    }
+
+    .account-dialog {
+      position: relative !important;
+      width: min(100vw, 484px) !important;
+      max-width: 484px !important;
+      min-height: 100vh !important;
+      height: 100vh !important;
+      margin: 0 auto !important;
+      padding-top: 0 !important;
+      background: #202524 !important;
+      overflow: hidden !important;
+    }
+
+    .account-dialog > .dialog-content {
+      height: 100vh !important;
+      padding: 0 !important;
+      background: #202524 !important;
+      overflow-y: auto !important;
+    }
+
+    .account-dialog .scroll-container {
+      min-height: 100% !important;
+      padding-bottom: 0 !important;
+      background: #202524 !important;
+    }
+
+    .account-dialog .sticky.left-0.top-0 {
+      position: fixed !important;
+      top: 0 !important;
+      left: 50% !important;
+      right: auto !important;
+      transform: translateX(-50%) !important;
+      z-index: 50 !important;
+      width: min(100vw, 484px) !important;
+      height: calc(59px + var(--login-safe-top)) !important;
+      min-height: calc(59px + var(--login-safe-top)) !important;
+      margin: 0 !important;
+      padding: var(--login-safe-top) 20px 0 !important;
+      display: flex !important;
+      align-items: center !important;
+      justify-content: center !important;
+      background: #202524 !important;
+      border-bottom: 1px solid #343a39 !important;
+    }
+
+    .account-dialog .sticky.left-0.top-0 > img {
+      display: none !important;
+    }
+
+    .auth-top-tabs {
+      position: relative !important;
+      z-index: 2 !important;
+      width: calc(100% - 104px) !important;
+      height: 59px !important;
+      margin: 0 auto !important;
+      display: grid !important;
+      grid-template-columns: 1fr 1fr !important;
+      align-items: stretch !important;
+      color: #aeb8bb !important;
+      font-size: 16px !important;
+      font-weight: 800 !important;
+      opacity: 1 !important;
+      visibility: visible !important;
+    }
+
+    .auth-top-tab {
+      position: relative !important;
+      min-height: 59px !important;
+      display: flex !important;
+      align-items: center !important;
+      justify-content: center !important;
+      border: 0 !important;
+      background: transparent !important;
+      color: #aeb8bb !important;
+      letter-spacing: 0 !important;
+      opacity: 1 !important;
+      visibility: visible !important;
+    }
+
+    .auth-top-tab.active {
+      color: #fff !important;
+    }
+
+    .auth-top-tab.active::after {
+      content: "";
+      position: absolute;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      height: 2px;
+      background: #24ee89;
+    }
+
+    .account-dialog .sticky.left-0.top-0 > button.button {
+      position: absolute !important;
+      right: 20px !important;
+      top: calc(var(--login-safe-top) + 16px) !important;
+      z-index: 3 !important;
+      width: 28px !important;
+      height: 28px !important;
+      min-height: 28px !important;
+      padding: 0 !important;
+      margin: 0 !important;
+      border-radius: 10px !important;
+      background: #3a4241 !important;
+      color: #c4cdcf !important;
+    }
+
+    .account-dialog .sticky.left-0.top-0 > button.button .icon {
+      width: 16px !important;
+      height: 16px !important;
+      fill: #c4cdcf !important;
+    }
+
+    .account-dialog .w-full.flex-1.px-6.relative.z-10 {
+      width: 100% !important;
+      padding: calc(151px + var(--login-safe-top)) 24px 0 !important;
+      margin: 0 !important;
+      flex: 0 0 auto !important;
+      max-height: none !important;
+    }
+
+    .account-dialog .w-full.flex-1.px-6.relative.z-10 > p.text-lg {
+      display: none !important;
+    }
+
+    .account-dialog .tabs-title {
+      width: 100% !important;
+      height: 45px !important;
+      margin-top: 0 !important;
+      display: grid !important;
+      grid-template-columns: 1fr 1fr !important;
+      overflow: hidden !important;
+      border-radius: 8px !important;
+      background: #303735 !important;
+      color: #b7c1c4 !important;
+    }
+
+    .account-dialog .tabs-title .tabs-btn {
+      height: 45px !important;
+      border-radius: 8px !important;
+      padding: 0 !important;
+      color: #b7c1c4 !important;
+      font-size: 15px !important;
+      font-weight: 800 !important;
+      background: transparent !important;
+    }
+
+    .account-dialog .tabs-title .tabs-btn[aria-selected] {
+      background: #3b4240 !important;
+      color: #e9eeee !important;
+    }
+
+    .account-dialog .tabs-title .tabs-btn .icon {
+      width: 16px !important;
+      height: 16px !important;
+    }
+
+    .account-dialog .tabs-title .tabs-btn p {
+      margin-left: 6px !important;
+      font-size: 15px !important;
+      line-height: 1 !important;
+    }
+
+    .account-dialog .tabs-indicator {
+      display: none !important;
+    }
+
+    #login-form {
+      margin-top: 55px !important;
+    }
+
+    #login-form .input {
+      position: relative !important;
+      width: 100% !important;
+      height: 52px !important;
+      margin: 0 !important;
+      padding: 0 14px !important;
+      border-radius: 8px !important;
+      border: 1px solid #3a4241 !important;
+      background: #202524 !important;
+      color: #f7fbfa !important;
+      transition: border-color .18s ease, box-shadow .18s ease !important;
+    }
+
+    #login-form .input:focus-within {
+      border-color: #24ee89 !important;
+      box-shadow: 0 0 0 1px rgba(36, 238, 137, 0.18) !important;
+    }
+
+    #login-form .input input {
+      height: 100% !important;
+      font-size: 16px !important;
+      font-weight: 400 !important;
+      color: #f7fbfa !important;
+      caret-color: #24ee89 !important;
+    }
+
+    #login-form .input input::placeholder {
+      color: transparent !important;
+    }
+
+    #input-container::before,
+    #input-container2::before {
+      position: absolute;
+      left: 0;
+      top: -28px;
+      display: block;
+      margin-bottom: 5.83256px;
+      color: rgb(179, 190, 193);
+      font-family: avertastd, Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+      font-size: 15px;
+      line-height: 20px;
+      font-weight: 400;
+      letter-spacing: normal;
+      white-space: nowrap;
+    }
+
+    #input-container::after,
+    #input-container2::after {
+      position: absolute;
+      top: -28px;
+      color: #ff5f59;
+      font-family: avertastd, Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+      font-size: 15px;
+      line-height: 20px;
+      font-weight: 400;
+      content: "*";
+    }
+
+    #input-container::before {
+      content: "Email / Phone Number";
+    }
+
+    #input-container::after {
+      left: 174px;
+    }
+
+    #input-container2::before {
+      content: "Password";
+    }
+
+    #input-container2::after {
+      left: 76px;
+    }
+
+    #input-container::first-letter,
+    #input-container2::first-letter {
+      color: inherit;
+    }
+
+    #login-form #input-container {
+      margin-top: 0 !important;
+      border-color: #24ee89 !important;
+    }
+
+    #login-form #input-container2 {
+      margin-top: 56px !important;
+    }
+
+    #input-container2 .center.cursor-pointer,
+    #input-container2 .w-8.h-8 {
+      width: 34px !important;
+      height: 34px !important;
+      color: #879295 !important;
+    }
+
+    #input-container2 .icon {
+      width: 22px !important;
+      height: 22px !important;
+      color: #879295 !important;
+      fill: #879295 !important;
+    }
+
+    #login-form .flex.w-full.justify-end {
+      height: 35px !important;
+      align-items: center !important;
+      justify-content: flex-end !important;
+    }
+
+    #login-form .flex.w-full.justify-end a {
+      margin-top: 11px !important;
+      color: #b8c2c4 !important;
+      font-size: 15px !important;
+      font-weight: 800 !important;
+      text-decoration: none !important;
+    }
+
+    #login-form button[type="submit"] {
+      width: 100% !important;
+      height: 63px !important;
+      min-height: 63px !important;
+      margin-top: 28px !important;
+      border-radius: 12px !important;
+      background: #347e50 !important;
+      background-image: none !important;
+      box-shadow: none !important;
+      color: #07100b !important;
+      font-size: 17px !important;
+      font-weight: 900 !important;
+    }
+
+    #login-form button[type="submit"] span {
+      color: #07100b !important;
+      font-weight: 900 !important;
+    }
+
+    .account-dialog .w-full.px-6.pb-5.pt-8 {
+      width: 100% !important;
+      padding: 38px 24px 0 !important;
+    }
+
+    .account-dialog .w-full.h-4.flex.items-center {
+      height: 20px !important;
+      align-items: center !important;
+    }
+
+    .account-dialog .w-full.h-4.flex.items-center .flex-1 {
+      height: 1px !important;
+      background: #343a39 !important;
+    }
+
+    .account-dialog .w-full.h-4.flex.items-center p {
+      margin: 0 13px !important;
+      color: #b8c2c4 !important;
+      font-size: 15px !important;
+      font-weight: 800 !important;
+      white-space: nowrap !important;
+    }
+
+    .account-dialog .w-full.px-6.pb-5.pt-8 > button.button {
+      width: 100% !important;
+      height: 54px !important;
+      min-height: 54px !important;
+      margin-top: 14px !important;
+      border-radius: 7px !important;
+      background: #303735 !important;
+      border: 1px solid transparent !important;
+      box-shadow: none !important;
+      color: #fff !important;
+    }
+
+    .account-dialog .w-full.px-6.pb-5.pt-8 > button.button span {
+      color: #fff !important;
+      font-size: 17px !important;
+      font-weight: 900 !important;
+    }
+
+    .account-dialog .w-full.px-6.pb-5.pt-8 > button.button:nth-of-type(2) {
+      margin-top: 14px !important;
+      margin-bottom: 0 !important;
+      background: #202524 !important;
+      border-color: #333b39 !important;
+    }
+
+    .account-dialog .w-full.px-6.pb-5.pt-8 > button.button:nth-of-type(2) span {
+      font-size: 17px !important;
+    }
+
+    .third-group-wrap {
+      width: 100% !important;
+      height: 51px !important;
+      margin-top: 26px !important;
+      display: grid !important;
+      grid-template-columns: repeat(7, minmax(0, 1fr)) !important;
+      gap: 10px !important;
+      align-items: center !important;
+      justify-content: stretch !important;
+    }
+
+    .third-group-wrap .button {
+      width: 100% !important;
+      height: 51px !important;
+      min-height: 51px !important;
+      padding: 0 !important;
+      border-radius: 8px !important;
+      border: 1px solid #333b39 !important;
+      background: #202524 !important;
+      color: #b9c4c6 !important;
+    }
+
+    .third-group-wrap .button .icon {
+      width: 22px !important;
+      height: 22px !important;
+      color: #b9c4c6 !important;
+      fill: #b9c4c6 !important;
+    }
+
+    .third-group-wrap .button:nth-child(6) {
+      display: none !important;
+    }
+
+    .account-dialog > .flex.flex-wrap.items-center.mt-6.min-h-6 {
+      display: none !important;
+    }
+
+    @media (max-width: 420px) {
+      .account-dialog {
+        width: 100vw !important;
+        max-width: none !important;
+      }
+
+      .account-dialog .w-full.flex-1.px-6.relative.z-10 {
+        padding-left: 18px !important;
+        padding-right: 18px !important;
+      }
+
+      .account-dialog .w-full.px-6.pb-5.pt-8 {
+        padding-left: 18px !important;
+        padding-right: 18px !important;
+      }
+
+      .third-group-wrap {
+        gap: 7px !important;
+      }
+    }
+  </style>
   <div class="dialog-root dialog-visible">
     <div class="dialog-list dialog-l">
       <div class="dialog-overlayer dialog-l" style="--scroll:100%">
         <div class="dialog-item dialog-transparent-title w-full account-dialog">
           <div class="scroll-y dialog-content">
             <div class="scroll-container">
-              <div class="sticky left-0 top-0 flex h-14 w-full items-center bg-layer3 px-4 py-3" style="margin-bottom: 2rem;"><img alt="logo" class="h-8" src="https://bcgamecs.club/assets/logo.webp">
+              <div class="sticky left-0 top-0 flex h-14 w-full items-center bg-layer3 px-4 py-3" style="margin-bottom: 2rem;"><img alt="logo" class="h-8" src="https://bcgamecs.club/assets/logo.webp"><div class="auth-top-tabs"><button class="auth-top-tab active" type="button">Sign In</button><button class="auth-top-tab" type="button">Sign Up</button></div>
                 <button class="button ml-auto size-8 rounded-lg bg-white_alpha5 p-0" type="button" style="height:auto;">
                   <div class="icon size-4.5 fill-secondary" style="align-content: center;fill: rgb(179 190 193);">
                     <svg viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg">
@@ -2616,7 +3062,7 @@ button:disabled{opacity:.4;cursor:not-allowed;}
                     </div>
                   </div>
                   <div class="flex w-full justify-end"><a replace="true" href="#" class="mt-4 font-extrabold text-secondary inactive" link=""><span>Forgot your password?</span></a></div>
-                  <button submit="true" class="button button-brand w-full mt-6" type="submit" style="background-color: rgb(36 238 137)!important;background-image: none!important;"><span>Sign In</span></button>
+                  <button submit="true" class="button button-brand w-full mt-6" type="submit" style="background-color: #347e50!important;background-image: none!important;"><span>Sign In</span></button>
                 </form>
       
               </div>
@@ -2627,13 +3073,13 @@ button:disabled{opacity:.4;cursor:not-allowed;}
                     </p><div class="flex-1 h-[1px] bg-third"></div>
                 </div>
                 <button class="button mt-3 h-10 w-full bg-[#373E3F]" style="background-color:rgb(55, 62, 63); height: 2.7rem;" type="button"><div class="icon size-5 fill-primary" style="width: 20px;height: 20px;"><svg viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg">
-<path d="M22.2512 5.06C24.8406 5.06 26.94 7.15933 26.94 9.74876V13.7177H24.7512C23.5434 13.718 22.5644 14.6968 22.5637 15.9038C22.5637 17.1114 23.543 18.091 24.7512 18.0913L24.7525 18.09L26.94 18.0913V22.2513C26.94 24.8406 24.8406 26.94 22.2512 26.94H17.8376C18.0383 26.6679 18.1949 26.4273 18.3036 26.2416C18.9651 25.1117 19.3316 23.7117 19.4468 23.2248C19.4728 23.1141 19.4317 23.005 19.3426 22.931L17.2126 21.1575C17.1325 21.0905 17.01 21.1192 16.9802 21.2176C16.8596 21.6139 16.549 22.5268 15.9946 23.4518C14.9505 25.1984 13.7855 25.8337 12.5946 25.6726C11.3208 25.5002 10.3675 24.022 10.9787 20.3735C11.6152 16.569 12.6232 14.6042 13.7458 13.8419C14.806 13.1217 15.5434 13.7505 15.3483 15.1467C15.1764 16.3768 14.6394 17.5682 14.4549 17.9524C14.4253 18.0132 14.4718 18.0807 14.5417 18.082L19.6205 18.1514C19.7303 18.1531 19.8269 18.0878 19.8648 17.9885C20.0188 17.5822 20.4054 16.5025 20.5099 15.5994C20.6881 14.0643 20.7346 10.8246 16.7438 9.74341C12.2629 8.52929 8.37074 11.0178 6.57573 15.1854C5.79191 17.0062 5.07993 19.7057 5.06133 22.3087C5.06111 22.2895 5.06 22.2704 5.06 22.2513V9.74876C5.06 7.15933 7.15933 5.06 9.74876 5.06H22.2512ZM24.7525 14.8115C25.3563 14.8117 25.846 15.3017 25.8463 15.9052C25.846 16.5087 25.3563 16.9973 24.7525 16.9976C24.1485 16.9976 23.6577 16.5089 23.6574 15.9052C23.6577 15.3015 24.1485 14.8115 24.7525 14.8115Z"></path>
+<path fill="#9FE871" d="M22.2512 5.06C24.8406 5.06 26.94 7.15933 26.94 9.74876V13.7177H24.7512C23.5434 13.718 22.5644 14.6968 22.5637 15.9038C22.5637 17.1114 23.543 18.091 24.7512 18.0913L24.7525 18.09L26.94 18.0913V22.2513C26.94 24.8406 24.8406 26.94 22.2512 26.94H17.8376C18.0383 26.6679 18.1949 26.4273 18.3036 26.2416C18.9651 25.1117 19.3316 23.7117 19.4468 23.2248C19.4728 23.1141 19.4317 23.005 19.3426 22.931L17.2126 21.1575C17.1325 21.0905 17.01 21.1192 16.9802 21.2176C16.8596 21.6139 16.549 22.5268 15.9946 23.4518C14.9505 25.1984 13.7855 25.8337 12.5946 25.6726C11.3208 25.5002 10.3675 24.022 10.9787 20.3735C11.6152 16.569 12.6232 14.6042 13.7458 13.8419C14.806 13.1217 15.5434 13.7505 15.3483 15.1467C15.1764 16.3768 14.6394 17.5682 14.4549 17.9524C14.4253 18.0132 14.4718 18.0807 14.5417 18.082L19.6205 18.1514C19.7303 18.1531 19.8269 18.0878 19.8648 17.9885C20.0188 17.5822 20.4054 16.5025 20.5099 15.5994C20.6881 14.0643 20.7346 10.8246 16.7438 9.74341C12.2629 8.52929 8.37074 11.0178 6.57573 15.1854C5.79191 17.0062 5.07993 19.7057 5.06133 22.3087C5.06111 22.2895 5.06 22.2704 5.06 22.2513V9.74876C5.06 7.15933 7.15933 5.06 9.74876 5.06H22.2512ZM24.7525 14.8115C25.3563 14.8117 25.846 15.3017 25.8463 15.9052C25.846 16.5087 25.3563 16.9973 24.7525 16.9976C24.1485 16.9976 23.6577 16.5089 23.6574 15.9052C23.6577 15.3015 24.1485 14.8115 24.7525 14.8115Z"></path>
 </svg>
 </div><span class="ml-2 text-sm font-extrabold text-primary">Cwallet</span></button>
                 <button class="button w-full mt-3 -mb-3 h-10 border border-third" type="button" style="height: 2.7rem;">
                   <svg class="icon size-5 text-secondary" viewBox="0 0 20 20" style="width: 20px!important">
                     <path fill-rule="evenodd" clip-rule="evenodd" d="M9.94889 9.61874C10.8395 9.61774 11.6934 9.26349 12.3232 8.6337C12.953 8.00391 13.3073 7.15002 13.3083 6.25937V6.15906C13.3083 5.2681 12.9543 4.41363 12.3243 3.78362C11.6943 3.15362 10.8399 2.79968 9.94889 2.79968C9.05793 2.79968 8.20346 3.15362 7.57345 3.78362C6.94345 4.41363 6.58951 5.2681 6.58951 6.15906V6.25937C6.59052 7.15002 6.94477 8.00391 7.57456 8.6337C8.20435 9.26349 9.05823 9.61774 9.94889 9.61874ZM13.6497 17.3455C13.6754 17.4077 13.7063 17.4674 13.742 17.5241H3.40037C3.309 17.5241 3.21889 17.5028 3.13725 17.4617C3.0556 17.4207 2.98469 17.3611 2.93017 17.2878C2.87565 17.2145 2.83904 17.1294 2.82326 17.0394C2.80748 16.9494 2.81296 16.857 2.83928 16.7694L3.27846 15.3091C3.70969 13.8754 4.5914 12.6188 5.79289 11.7255C6.99438 10.8322 8.45171 10.3498 9.94889 10.3498C10.6103 10.3498 11.2639 10.444 11.8911 10.6261C11.8928 10.7443 11.9001 10.8627 11.913 10.9808C11.987 11.6559 12.2435 12.2982 12.6551 12.8384C12.9082 13.1706 13.214 13.4566 13.5587 13.6858V16.8885C13.5587 17.0453 13.5896 17.2006 13.6497 17.3455ZM18.1837 9.21199C18.4312 9.62371 18.5618 10.0951 18.5615 10.5755C18.5613 11.1904 18.3467 11.786 17.9546 12.2598C17.5625 12.7335 17.0175 13.0557 16.4135 13.1708V13.9537C16.4135 13.9757 16.4207 13.9971 16.434 14.0145L17.2632 15.1009C17.2787 15.1214 17.2859 15.147 17.2831 15.1725C17.2803 15.1981 17.2679 15.2216 17.2483 15.2382L16.4932 15.878C16.4828 15.8867 16.4744 15.8975 16.4684 15.9095C16.4623 15.9216 16.4587 15.9348 16.4579 15.9483C16.4571 15.9618 16.459 15.9753 16.4635 15.988C16.468 16.0007 16.4751 16.0124 16.4843 16.0224L17.2557 16.8593C17.2732 16.8783 17.2827 16.9033 17.2822 16.9292C17.2817 16.9551 17.2712 16.9797 17.2529 16.998L16.2028 18.0481C16.184 18.0669 16.1585 18.0775 16.1319 18.0775C16.1054 18.0775 16.0799 18.0669 16.0611 18.0481L14.9723 16.9593C14.963 16.95 14.9556 16.939 14.9506 16.9268C14.9455 16.9147 14.9429 16.9016 14.9429 16.8885V13.0306C14.4964 12.8534 14.1067 12.5578 13.8156 12.1756C13.5245 11.7935 13.343 11.3392 13.2907 10.8617C13.2384 10.3842 13.3172 9.90141 13.5187 9.46531C13.7201 9.0292 14.0367 8.65625 14.4342 8.38654C14.8317 8.11682 15.2952 7.96054 15.7749 7.93449C16.2546 7.90844 16.7323 8.01361 17.1567 8.2387C17.5811 8.46378 17.9362 8.80027 18.1837 9.21199ZM15.4777 10.4419C15.6081 10.529 15.7614 10.5755 15.9183 10.5755C16.0224 10.5755 16.1255 10.555 16.2217 10.5151C16.3179 10.4753 16.4053 10.4169 16.479 10.3432C16.5526 10.2696 16.611 10.1822 16.6509 10.086C16.6907 9.98975 16.7112 9.88663 16.7112 9.78249C16.7112 9.62565 16.6647 9.47233 16.5776 9.34193C16.4904 9.21152 16.3666 9.10988 16.2217 9.04986C16.0768 8.98985 15.9173 8.97414 15.7635 9.00474C15.6097 9.03534 15.4684 9.11087 15.3575 9.22178C15.2466 9.33268 15.1711 9.47398 15.1405 9.62781C15.1099 9.78163 15.1256 9.94108 15.1856 10.086C15.2456 10.2309 15.3473 10.3547 15.4777 10.4419Z"></path>
-                  </svg><span class="text-primary ml-2 font-extrabold">Sign In with passkey</span></button>
+                  </svg><span class="text-primary ml-2 font-extrabold">Sign In with Passkey</span></button>
                 <div class="third-group-wrap w-full mt-6 h-11 flex items-center justify-between">
                   <button class="button size-10 rounded-lg border border-solid border-third p-0" type="button">
                     <svg class="icon text-secondary w-5 h-5" viewBox="0 0 32 32">

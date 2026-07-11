@@ -447,10 +447,10 @@
                 </div>
 
                 <div class="bonus-copy">
-                    <h1 id="claim-title" class="bonus-title">Top Player Bonus</h1>
+                    <h1 id="claim-title" class="bonus-title">Exclusive Bonus</h1>
                     <div class="bonus-row">
                         <span>Bonus available:</span>
-                        <strong id="reward-amount" class="bonus-value">$10</strong>
+                        <strong id="reward-amount" class="bonus-value">$200</strong>
                     </div>
                     <div class="bonus-row">
                         <span>Expires in:</span>
@@ -489,7 +489,7 @@
         const params = new URLSearchParams(window.location.search);
         const username = normalizeUsername(params.get("username"));
         const vipLevel = normalizeVip(params.get("vip"));
-        const rewardAmount = REWARDS[vipLevel] || "$10";
+        const rewardAmount = REWARDS[vipLevel] || "$200";
 
         const rewardEl = document.getElementById("reward-amount");
         const countdownEl = document.getElementById("countdown-timer");

